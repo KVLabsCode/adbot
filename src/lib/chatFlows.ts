@@ -192,5 +192,19 @@ function getDefaultFormatContent(format: FormatType): FormatContent {
         type: FormatType.ROUTE_PIN,
         pinLabel: "Sponsored Stop",
       };
+    case FormatType.HUMANOID_DIALOGUE_SCRIPT:
+      return {
+        type: FormatType.HUMANOID_DIALOGUE_SCRIPT,
+        dialogueLine: "Welcome! Can I tell you about our featured brand?",
+        emotionalTone: "friendly",
+        contextTrigger: "greeting",
+      };
+    case FormatType.GESTURE_CUE:
+      return {
+        type: FormatType.GESTURE_CUE,
+        gestureName: "wave",
+        gestureContext: "Draw attention to display",
+        emotionalTone: "during",
+      };
   }
 }

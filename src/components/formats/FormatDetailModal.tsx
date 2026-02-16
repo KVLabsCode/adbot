@@ -51,11 +51,23 @@ const formatInfo: Record<
     influences: "Route selection and stop prioritization",
     metrics: "ASP, CPD",
   },
+  [FormatType.HUMANOID_DIALOGUE_SCRIPT]: {
+    where: "Humanoid robot conversational interaction",
+    when: "During greetings, product inquiries, or idle moments",
+    influences: "Brand engagement through scripted dialogue",
+    metrics: "ASP, RDR",
+  },
+  [FormatType.GESTURE_CUE]: {
+    where: "Physical gesture performed by humanoid or event robot",
+    when: "Before, during, or after speech interactions",
+    influences: "Attention capture and brand visibility",
+    metrics: "DCV, RDR",
+  },
 };
 
 export function FormatDetailModal({ formatType, onClose }: FormatDetailModalProps) {
   const info = formatInfo[formatType];
-  const creative = (creatives as Record<string, FormatContent>)[formatType];
+  const creative = (creatives as unknown as Record<string, FormatContent>)[formatType];
   const format: FormatContent = { ...creative, type: formatType };
 
   return (

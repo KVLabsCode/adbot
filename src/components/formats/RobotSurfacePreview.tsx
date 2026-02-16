@@ -4,6 +4,8 @@ import { FormatContent, FormatType } from "@/types";
 import { ScreenSurface } from "./ScreenSurface";
 import { VoiceSurface } from "./VoiceSurface";
 import { RoutingSurface } from "./RoutingSurface";
+import { DialogueSurface } from "./DialogueSurface";
+import { GestureSurface } from "./GestureSurface";
 
 interface RobotSurfacePreviewProps {
   format: FormatContent;
@@ -15,6 +17,8 @@ const surfaceLabels: Record<FormatType, string> = {
   [FormatType.RESTOCK_ALERT_BANNER]: "Screen Surface",
   [FormatType.VOICE_PROMPT]: "Voice Interaction Surface",
   [FormatType.ROUTE_PIN]: "Routing Interface Surface",
+  [FormatType.HUMANOID_DIALOGUE_SCRIPT]: "Dialogue Interaction Surface",
+  [FormatType.GESTURE_CUE]: "Gesture Cue Surface",
 };
 
 export function RobotSurfacePreview({ format }: RobotSurfacePreviewProps) {
@@ -35,6 +39,12 @@ export function RobotSurfacePreview({ format }: RobotSurfacePreviewProps) {
       )}
       {format.type === FormatType.ROUTE_PIN && (
         <RoutingSurface format={format} />
+      )}
+      {format.type === FormatType.HUMANOID_DIALOGUE_SCRIPT && (
+        <DialogueSurface format={format} />
+      )}
+      {format.type === FormatType.GESTURE_CUE && (
+        <GestureSurface format={format} />
       )}
     </div>
   );

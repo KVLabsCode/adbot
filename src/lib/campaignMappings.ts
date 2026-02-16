@@ -64,6 +64,18 @@ export const formatTypeLabels: Record<FormatType, string> = {
   [FormatType.HIGHLIGHT_BADGE]: "Highlight Badge",
   [FormatType.RESTOCK_ALERT_BANNER]: "Restock Alert Banner",
   [FormatType.ROUTE_PIN]: "Route Pin",
+  [FormatType.HUMANOID_DIALOGUE_SCRIPT]: "Humanoid Dialogue",
+  [FormatType.GESTURE_CUE]: "Gesture Cue",
+};
+
+export const formatTypeEmojis: Record<FormatType, string> = {
+  [FormatType.DISPLAY_CARD]: "\ud83d\udcf1",
+  [FormatType.VOICE_PROMPT]: "\ud83d\udd0a",
+  [FormatType.HIGHLIGHT_BADGE]: "\u2b50",
+  [FormatType.RESTOCK_ALERT_BANNER]: "\ud83d\udce3",
+  [FormatType.ROUTE_PIN]: "\ud83d\udccd",
+  [FormatType.HUMANOID_DIALOGUE_SCRIPT]: "\ud83d\udde3",
+  [FormatType.GESTURE_CUE]: "\ud83d\udd90",
 };
 
 // ── Robot Type Mappings ──────────────────────────────────────

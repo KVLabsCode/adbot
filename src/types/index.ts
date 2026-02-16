@@ -20,6 +20,8 @@ export enum FormatType {
   HIGHLIGHT_BADGE = "highlight_badge",
   RESTOCK_ALERT_BANNER = "restock_alert_banner",
   ROUTE_PIN = "route_pin",
+  HUMANOID_DIALOGUE_SCRIPT = "humanoid_dialogue_script",
+  GESTURE_CUE = "gesture_cue",
 }
 
 export enum RobotType {
@@ -73,6 +75,47 @@ export interface FormatContent {
   badgeText?: string;
   alertText?: string;
   pinLabel?: string;
+  dialogueLine?: string;
+  emotionalTone?: string;
+  contextTrigger?: string;
+  gestureName?: string;
+  gestureContext?: string;
+}
+
+export enum CreativeStatus {
+  DRAFT = "draft",
+  VALIDATED = "validated",
+  NEEDS_CORRECTION = "needs_correction",
+  LIVE = "live",
+}
+
+export interface Creative {
+  id: string;
+  name: string;
+  formatType: FormatType;
+  robotTypes: RobotType[];
+  status: CreativeStatus;
+  content: FormatContent;
+  validationResults: ValidationResult[];
+  lastModified: string;
+  campaignId?: string;
+}
+
+export interface ValidationResult {
+  category: "format_compatibility" | "length_constraints" | "safety_guardrails" | "robot_capability" | "visual_fit";
+  passed: boolean;
+  message: string;
+  autoFixAvailable: boolean;
+}
+
+export interface ValidationLogEntry {
+  id: string;
+  creativeId: string;
+  creativeName: string;
+  formatType: FormatType;
+  timestamp: string;
+  passed: boolean;
+  results: ValidationResult[];
 }
 
 export interface Campaign {
@@ -193,6 +236,9 @@ export interface AdvertiserState {
   actionCounter: number;
   hasSeenOnboarding: boolean;
   launchFlowStep: LaunchFlowStep;
+  creatives: Creative[];
+  creativeDraft: Partial<Creative> | null;
+  validationLog: ValidationLogEntry[];
 
   setView: (view: string) => void;
   dismissOnboarding: () => void;
@@ -212,5 +258,10 @@ export interface AdvertiserState {
   resumeCampaign: (id: string) => void;
   adjustBudget: (id: string, amount: number) => void;
   pushAction: (type: ActionType, payload: Record<string, unknown>, campaignId?: string) => void;
+  addCreative: (creative: Creative) => void;
+  updateCreative: (id: string, updates: Partial<Creative>) => void;
+  deleteCreative: (id: string) => void;
+  setCreativeDraft: (draft: Partial<Creative> | null) => void;
+  addValidationLog: (entry: ValidationLogEntry) => void;
   resetDemo: () => void;
 }

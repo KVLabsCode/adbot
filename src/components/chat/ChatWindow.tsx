@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useMemo, useState } from "react";
 import { useStore } from "@/store";
 import { useChat } from "@/lib/useChat";
-import { handleReporting, handleInsights, handlePerformance } from "@/lib/agenticHandlers";
+import { handleReporting, handleInsights } from "@/lib/agenticHandlers";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 import { WelcomeScreen } from "./WelcomeScreen";
@@ -11,6 +11,7 @@ import { DecisionLifecyclePanel } from "./DecisionLifecyclePanel";
 import { OnboardingOverlay } from "@/components/onboarding/OnboardingOverlay";
 import { AgenticActions, AgenticActionId } from "@/components/studio/AgenticActions";
 import { LaunchFlow } from "@/components/studio/LaunchFlow";
+import { CreativeStudio } from "@/components/creative/CreativeStudio";
 
 export function ChatWindow() {
   const conversation = useStore((s) => s.conversation);
@@ -21,6 +22,7 @@ export function ChatWindow() {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLaunchFlow, setShowLaunchFlow] = useState(false);
+  const [showCreativeStudio, setShowCreativeStudio] = useState(false);
 
   const hasMessages = useMemo(
     () => conversation.length > 0,
@@ -40,14 +42,14 @@ export function ChatWindow() {
           setShowLaunchFlow(true);
           setLaunchFlowStep("type-select");
           break;
+        case "creatives":
+          setShowCreativeStudio(true);
+          break;
         case "reporting":
           handleReporting();
           break;
         case "insights":
           handleInsights();
-          break;
-        case "performance":
-          handlePerformance();
           break;
       }
     },
@@ -58,6 +60,15 @@ export function ChatWindow() {
     setShowLaunchFlow(false);
     setLaunchFlowStep(null);
   }, [setLaunchFlowStep]);
+
+  // Show the creative studio full-screen when active
+  if (showCreativeStudio) {
+    return (
+      <div className="flex h-full flex-col">
+        <CreativeStudio onClose={() => setShowCreativeStudio(false)} />
+      </div>
+    );
+  }
 
   // Show the launch flow full-screen when active
   if (showLaunchFlow || launchFlowStep) {

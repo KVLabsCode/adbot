@@ -9,11 +9,13 @@ import { Check, X } from "lucide-react";
 import creatives from "@/fixtures/creatives.json";
 
 const formatEmojis: Record<FormatType, string> = {
-  [FormatType.DISPLAY_CARD]: "📱",
-  [FormatType.VOICE_PROMPT]: "🔊",
-  [FormatType.HIGHLIGHT_BADGE]: "⭐",
-  [FormatType.RESTOCK_ALERT_BANNER]: "📣",
-  [FormatType.ROUTE_PIN]: "📍",
+  [FormatType.DISPLAY_CARD]: "\ud83d\udcf1",
+  [FormatType.VOICE_PROMPT]: "\ud83d\udd0a",
+  [FormatType.HIGHLIGHT_BADGE]: "\u2b50",
+  [FormatType.RESTOCK_ALERT_BANNER]: "\ud83d\udce3",
+  [FormatType.ROUTE_PIN]: "\ud83d\udccd",
+  [FormatType.HUMANOID_DIALOGUE_SCRIPT]: "\ud83d\udde3",
+  [FormatType.GESTURE_CUE]: "\ud83d\udd90",
 };
 
 const formatDescriptions: Record<FormatType, string> = {
@@ -22,6 +24,8 @@ const formatDescriptions: Record<FormatType, string> = {
   [FormatType.HIGHLIGHT_BADGE]: "Badge overlay on product listings",
   [FormatType.RESTOCK_ALERT_BANNER]: "Alert when inventory runs low",
   [FormatType.ROUTE_PIN]: "Waypoint on navigation maps",
+  [FormatType.HUMANOID_DIALOGUE_SCRIPT]: "Scripted dialogue for humanoids",
+  [FormatType.GESTURE_CUE]: "Physical gesture cue for robots",
 };
 
 interface IntegratedFormatGalleryProps {
@@ -104,7 +108,7 @@ function FormatPreviewModal({
   formatType: FormatType;
   onClose: () => void;
 }) {
-  const creative = (creatives as Record<string, FormatContent>)[formatType];
+  const creative = (creatives as unknown as Record<string, FormatContent>)[formatType];
   const format: FormatContent = { ...creative, type: formatType };
 
   const captions: Record<FormatType, string> = {
@@ -118,6 +122,10 @@ function FormatPreviewModal({
       "This Alert Banner triggers when robots detect low inventory.",
     [FormatType.ROUTE_PIN]:
       "This Route Pin appears on robot navigation maps during delivery.",
+    [FormatType.HUMANOID_DIALOGUE_SCRIPT]:
+      "This Dialogue Script is spoken by humanoid robots during conversation.",
+    [FormatType.GESTURE_CUE]:
+      "This Gesture Cue triggers a physical gesture from the robot.",
   };
 
   return (

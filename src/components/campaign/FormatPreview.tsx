@@ -4,7 +4,7 @@ import { FormatContent, FormatType } from "@/types";
 import { formatTypeLabels } from "@/lib/campaignMappings";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Volume2, MapPin, Tag, AlertTriangle, Monitor } from "lucide-react";
+import { Volume2, MapPin, Tag, AlertTriangle, Monitor, MessageSquare, Hand } from "lucide-react";
 
 interface FormatPreviewProps {
   format: FormatContent;
@@ -16,6 +16,8 @@ const formatIcons: Record<FormatType, React.ElementType> = {
   [FormatType.HIGHLIGHT_BADGE]: Tag,
   [FormatType.RESTOCK_ALERT_BANNER]: AlertTriangle,
   [FormatType.ROUTE_PIN]: MapPin,
+  [FormatType.HUMANOID_DIALOGUE_SCRIPT]: MessageSquare,
+  [FormatType.GESTURE_CUE]: Hand,
 };
 
 export function FormatPreview({ format }: FormatPreviewProps) {

@@ -9,12 +9,17 @@ import {
   FlowType,
   FormatContent,
   ChatMessage,
+  Creative,
   RobotType,
+  ValidationLogEntry,
 } from "@/types";
 import initialCampaigns from "@/fixtures/campaigns.json";
 import initialReporting from "@/fixtures/reporting.json";
 import initialBilling from "@/fixtures/billing.json";
+import initialCreativesData from "@/fixtures/creatives.json";
 import { resetMsgCounter } from "@/lib/idCounter";
+
+const initialCreatives = initialCreativesData.creativesList as unknown as Creative[];
 
 type ReportingKpis = AdvertiserState["reportingData"]["kpis"];
 type ReportingAspTrend = AdvertiserState["reportingData"]["aspTrend"];
@@ -39,6 +44,9 @@ function getInitialState() {
     actionCounter: 0,
     hasSeenOnboarding: false,
     launchFlowStep: null as AdvertiserState["launchFlowStep"],
+    creatives: initialCreatives,
+    creativeDraft: null as Partial<Creative> | null,
+    validationLog: [] as ValidationLogEntry[],
   };
 }
 
@@ -173,6 +181,29 @@ export const useStore = create<AdvertiserState>((set, get) => ({
         actionHistory: [...state.actionHistory, event],
       };
     }),
+
+  addCreative: (creative: Creative) =>
+    set((state) => ({ creatives: [...state.creatives, creative] })),
+
+  updateCreative: (id: string, updates: Partial<Creative>) =>
+    set((state) => ({
+      creatives: state.creatives.map((c) =>
+        c.id === id ? { ...c, ...updates } : c
+      ),
+    })),
+
+  deleteCreative: (id: string) =>
+    set((state) => ({
+      creatives: state.creatives.filter((c) => c.id !== id),
+    })),
+
+  setCreativeDraft: (draft: Partial<Creative> | null) =>
+    set({ creativeDraft: draft }),
+
+  addValidationLog: (entry: ValidationLogEntry) =>
+    set((state) => ({
+      validationLog: [...state.validationLog, entry],
+    })),
 
   resetDemo: () => {
     campaignCounter = 10;

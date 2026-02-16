@@ -1,8 +1,8 @@
 "use client";
 
-import { Rocket, BarChart3, Brain, TrendingUp } from "lucide-react";
+import { Rocket, BarChart3, Brain, Palette } from "lucide-react";
 
-export type AgenticActionId = "launch" | "reporting" | "insights" | "performance";
+export type AgenticActionId = "launch" | "reporting" | "insights" | "creatives";
 
 interface AgenticActionsProps {
   onAction: (action: AgenticActionId) => void;
@@ -18,30 +18,30 @@ const actions: {
   {
     id: "launch",
     label: "Launch Campaign",
-    emoji: "🚀",
+    emoji: "\ud83d\ude80",
     icon: Rocket,
     description: "Build & deploy a new campaign",
   },
   {
+    id: "creatives",
+    label: "Creatives",
+    emoji: "\ud83c\udfa8",
+    icon: Palette,
+    description: "Upload, create & manage ad assets",
+  },
+  {
     id: "reporting",
     label: "Reporting & Actions",
-    emoji: "📈",
+    emoji: "\ud83d\udcc8",
     icon: BarChart3,
     description: "View metrics & manage campaigns",
   },
   {
     id: "insights",
     label: "Insights",
-    emoji: "🧠",
+    emoji: "\ud83e\udde0",
     icon: Brain,
     description: "AI-powered recommendations",
-  },
-  {
-    id: "performance",
-    label: "Performance",
-    emoji: "📊",
-    icon: TrendingUp,
-    description: "Track campaign results",
   },
 ];
 

@@ -43,7 +43,7 @@ function generateMetrics() {
 
 function getCreative(formatType: FormatType): FormatContent {
   const key = formatType as string;
-  const data = (creatives as Record<string, FormatContent>)[key];
+  const data = (creatives as unknown as Record<string, FormatContent>)[key];
   return { ...data, type: formatType };
 }
 

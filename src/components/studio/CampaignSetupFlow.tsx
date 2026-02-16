@@ -98,7 +98,7 @@ export function CampaignSetupFlow({
   function handleFinish() {
     if (!selectedFlow || selectedFormats.length === 0 || !budget) return;
     const formats: FormatContent[] = selectedFormats.map((ft) => {
-      const creative = (creatives as Record<string, FormatContent>)[ft];
+      const creative = (creatives as unknown as Record<string, FormatContent>)[ft];
       return { ...creative, type: ft };
     });
     onComplete({
