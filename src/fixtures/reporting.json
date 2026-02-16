@@ -1,0 +1,35 @@
+{
+  "kpis": {
+    "asp": 3.42,
+    "dcv": 12847,
+    "cpd": 1.17,
+    "rdr": 0.73,
+    "aspTrend": "up",
+    "dcvTrend": "up",
+    "cpdTrend": "down",
+    "rdrTrend": "up"
+  },
+  "aspTrend": [
+    { "date": "Feb 1", "value": 2.80 },
+    { "date": "Feb 3", "value": 2.95 },
+    { "date": "Feb 5", "value": 3.10 },
+    { "date": "Feb 7", "value": 3.05 },
+    { "date": "Feb 9", "value": 3.25 },
+    { "date": "Feb 11", "value": 3.35 },
+    { "date": "Feb 13", "value": 3.42 },
+    { "date": "Feb 15", "value": 3.50 }
+  ],
+  "flowBreakdown": [
+    { "flow": "Pre-Decision Influence", "impressions": 45200, "conversions": 8730, "asp": 3.65 },
+    { "flow": "Comparison Stage Influence", "impressions": 31400, "conversions": 4117, "asp": 3.12 },
+    { "flow": "Post-Decision Reinforcement", "impressions": 18900, "conversions": 2800, "asp": 2.95 },
+    { "flow": "Contextual Trigger Flow", "impressions": 12300, "conversions": 1950, "asp": 3.80 }
+  ],
+  "formatBreakdown": [
+    { "format": "Display Card", "impressions": 52000, "clicks": 7800, "ctr": 15.0 },
+    { "format": "Voice Prompt", "impressions": 23000, "clicks": 4140, "ctr": 18.0 },
+    { "format": "Highlight Badge", "impressions": 18500, "clicks": 2590, "ctr": 14.0 },
+    { "format": "Restock Alert Banner", "impressions": 9200, "clicks": 1564, "ctr": 17.0 },
+    { "format": "Route Pin", "impressions": 5100, "clicks": 612, "ctr": 12.0 }
+  ]
+}
