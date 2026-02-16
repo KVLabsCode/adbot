@@ -89,6 +89,21 @@ export const robotTypeToSubtypes: Record<RobotType, CampaignType[]> = {
     CampaignType.COMPARISON_PLACEMENT,
     CampaignType.VOICE_DISPLAY,
   ],
+  [RobotType.HUMANOID]: [
+    CampaignType.DECISION_BID,
+    CampaignType.COMPARISON_PLACEMENT,
+    CampaignType.VOICE_DISPLAY,
+  ],
+  [RobotType.EVENT]: [
+    CampaignType.DECISION_BID,
+    CampaignType.VOICE_DISPLAY,
+    CampaignType.PREFERENCE_SLOT,
+  ],
+  [RobotType.AUTONOMOUS_VEHICLE]: [
+    CampaignType.ROUTE_SPONSORSHIP,
+    CampaignType.VOICE_DISPLAY,
+    CampaignType.DECISION_BID,
+  ],
 };
 
 export const robotTypeLabels: Record<RobotType, string> = {
@@ -96,6 +111,9 @@ export const robotTypeLabels: Record<RobotType, string> = {
   [RobotType.RETAIL]: "Retail / Store Robots",
   [RobotType.HOME]: "Home Robots",
   [RobotType.HOSPITALITY]: "Hospitality / Service Robots",
+  [RobotType.HUMANOID]: "Advanced Humanoids",
+  [RobotType.EVENT]: "Autonomous Event Robots",
+  [RobotType.AUTONOMOUS_VEHICLE]: "Autonomous Vehicles",
 };
 
 export const robotTypeEmojis: Record<RobotType, string> = {
@@ -103,6 +121,9 @@ export const robotTypeEmojis: Record<RobotType, string> = {
   [RobotType.RETAIL]: "\ud83c\udfec",
   [RobotType.HOME]: "\ud83c\udfe0",
   [RobotType.HOSPITALITY]: "\ud83c\udfe2",
+  [RobotType.HUMANOID]: "\ud83e\udd16",
+  [RobotType.EVENT]: "\ud83d\udef8",
+  [RobotType.AUTONOMOUS_VEHICLE]: "\ud83d\ude98",
 };
 
 export const robotTypeDescriptions: Record<RobotType, string> = {
@@ -114,6 +135,12 @@ export const robotTypeDescriptions: Record<RobotType, string> = {
     "Robots operating in homes assisting with replenishment and smart shopping.",
   [RobotType.HOSPITALITY]:
     "Robots operating in hotels, restaurants, and controlled service environments.",
+  [RobotType.HUMANOID]:
+    "Highly interactive humanoid robots in retail, hospitality, enterprise, and public venues.",
+  [RobotType.EVENT]:
+    "Robots deployed at conferences, malls, airports, and brand events for high-visibility engagement.",
+  [RobotType.AUTONOMOUS_VEHICLE]:
+    "Self-driving vehicles delivering goods or transporting people with interior and exterior ad surfaces.",
 };
 
 export const robotTypeCapabilities: Record<RobotType, string[]> = {
@@ -141,6 +168,25 @@ export const robotTypeCapabilities: Record<RobotType, string[]> = {
     "\ud83d\udd0a Greeting voice",
     "\ud83d\udce6 Contextual upsells",
   ],
+  [RobotType.HUMANOID]: [
+    "\ud83d\udde3 Conversational persuasion",
+    "\ud83d\udc41 Eye-level interaction",
+    "\ud83d\udd90 Gesture + movement branding",
+    "\ud83d\udccd Location-based brand anchoring",
+    "\ud83c\udfad Scripted brand personality mode",
+  ],
+  [RobotType.EVENT]: [
+    "\ud83d\udce2 Voice announcements",
+    "\ud83d\udcf1 Large digital display",
+    "\ud83c\udfaf Crowd interaction mode",
+    "\ud83d\udcf8 Photo-op branding mode",
+  ],
+  [RobotType.AUTONOMOUS_VEHICLE]: [
+    "\ud83d\udcf1 Exterior display",
+    "\ud83d\udcfa Interior passenger screens",
+    "\ud83d\udccd Route-based sponsorship",
+    "\ud83d\udd0a In-cabin audio branding",
+  ],
 };
 
 export const robotTypeAdvantages: Record<RobotType, string[]> = {
@@ -165,6 +211,24 @@ export const robotTypeAdvantages: Record<RobotType, string[]> = {
     "Premium placement",
     "Context-aware messaging",
   ],
+  [RobotType.HUMANOID]: [
+    "Premium positioning",
+    "Emotional engagement",
+    "Event-level visibility",
+    "Physical world brand presence",
+  ],
+  [RobotType.EVENT]: [
+    "Product launch amplification",
+    "Conference branding",
+    "Captive crowd attention",
+    "Timed brand activation",
+  ],
+  [RobotType.AUTONOMOUS_VEHICLE]: [
+    "Route exclusivity",
+    "Exterior brand dominance",
+    "Interior full-session sponsorship",
+    "High-frequency urban impressions",
+  ],
 };
 
 export const robotTypeExamples: Record<RobotType, string> = {
@@ -172,6 +236,49 @@ export const robotTypeExamples: Record<RobotType, string> = {
   [RobotType.RETAIL]: "Tally by Simbe, BrainOS",
   [RobotType.HOME]: "Amazon Astro, Samsung Bot",
   [RobotType.HOSPITALITY]: "Relay by Savioke, BellaBot",
+  [RobotType.HUMANOID]: "Figure AI, Agility Robotics",
+  [RobotType.EVENT]: "Spot by Boston Dynamics, Pudu",
+  [RobotType.AUTONOMOUS_VEHICLE]: "Nuro, Waymo, DoorDash AV",
+};
+
+export const robotTypeIsPremium: Record<RobotType, boolean> = {
+  [RobotType.DELIVERY]: false,
+  [RobotType.RETAIL]: false,
+  [RobotType.HOME]: false,
+  [RobotType.HOSPITALITY]: false,
+  [RobotType.HUMANOID]: true,
+  [RobotType.EVENT]: true,
+  [RobotType.AUTONOMOUS_VEHICLE]: true,
+};
+
+export const robotTypePremiumFeatures: Partial<Record<RobotType, string[]>> = {
+  [RobotType.HUMANOID]: [
+    "Brand takeover mode in specific locations",
+    "Sponsored greeting sequences",
+    "Location-exclusive brand dialogue",
+    "Co-branded personality themes",
+  ],
+  [RobotType.EVENT]: [
+    "Full-brand skin wrap",
+    "Sponsored demo sequences",
+    "Exclusive event territory",
+    "Timed brand activation windows",
+  ],
+  [RobotType.AUTONOMOUS_VEHICLE]: [
+    "Route exclusivity in zones",
+    "Exterior brand dominance mode",
+    "Interior full-session sponsorship",
+  ],
+};
+
+// One-line summaries for grid-based subtype cards
+export const subtypeSummary: Record<CampaignType, string> = {
+  [CampaignType.DECISION_BID]: "Compete during product evaluation.",
+  [CampaignType.ROUTE_SPONSORSHIP]: "Influence delivery path toward your location.",
+  [CampaignType.VOICE_DISPLAY]: "Brand visibility with voice + screen.",
+  [CampaignType.COMPARISON_PLACEMENT]: "Stand out in side-by-side comparisons.",
+  [CampaignType.PREFERENCE_SLOT]: "Pin your brand as the recommended choice.",
+  [CampaignType.RESTOCK_SPONSORSHIP]: "Appear when inventory runs low.",
 };
 
 // ── Subtype Education ────────────────────────────────────────

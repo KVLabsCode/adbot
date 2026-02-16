@@ -27,6 +27,9 @@ export enum RobotType {
   RETAIL = "retail",
   HOME = "home",
   HOSPITALITY = "hospitality",
+  HUMANOID = "humanoid",
+  EVENT = "event",
+  AUTONOMOUS_VEHICLE = "autonomous_vehicle",
 }
 
 export enum CampaignStatus {

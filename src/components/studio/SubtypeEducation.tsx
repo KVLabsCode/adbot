@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { CampaignType, RobotType, FlowType } from "@/types";
 import {
   robotTypeLabels,
@@ -8,10 +9,11 @@ import {
   campaignTypeEmojis,
   campaignTypeToFlows,
   subtypeEducation,
+  subtypeSummary,
 } from "@/lib/campaignMappings";
 import { CampaignFlowPreview } from "@/components/campaign/CampaignFlowPreview";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 
 interface SubtypeEducationProps {
   robotType: RobotType;
@@ -25,6 +27,7 @@ export function SubtypeEducation({
   onBack,
 }: SubtypeEducationProps) {
   const subtypes = robotTypeToSubtypes[robotType];
+  const [learnMoreSubtype, setLearnMoreSubtype] = useState<CampaignType | null>(null);
 
   return (
     <div className="flex-1 overflow-y-auto p-4">
@@ -39,31 +42,102 @@ export function SubtypeEducation({
         </button>
 
         <h2 className="text-lg font-semibold mb-1">
-          Campaign Subtypes for {robotTypeLabels[robotType]}
+          Choose a Campaign Subtype
         </h2>
         <p className="text-sm text-muted-foreground mb-5">
-          These campaigns are derived from {robotTypeLabels[robotType].toLowerCase()} capabilities. Each targets a different influence layer.
+          Campaign subtypes for {robotTypeLabels[robotType].toLowerCase()} — each targets a different influence layer.
         </p>
 
-        <div className="space-y-4">
+        {/* Grid of compact subtype cards */}
+        <div className="grid gap-3 sm:grid-cols-2">
           {subtypes.map((subtype) => (
-            <SubtypeCard
+            <SubtypeGridCard
               key={subtype}
               subtype={subtype}
               onSelect={() => onSelect(subtype)}
+              onLearnMore={() => setLearnMoreSubtype(subtype)}
             />
           ))}
         </div>
+      </div>
+
+      {/* Learn More Modal */}
+      {learnMoreSubtype && (
+        <LearnMoreModal
+          subtype={learnMoreSubtype}
+          onClose={() => setLearnMoreSubtype(null)}
+          onSelect={() => {
+            setLearnMoreSubtype(null);
+            onSelect(learnMoreSubtype);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ── Compact Grid Card ──────────────────────────────────── */
+
+function SubtypeGridCard({
+  subtype,
+  onSelect,
+  onLearnMore,
+}: {
+  subtype: CampaignType;
+  onSelect: () => void;
+  onLearnMore: () => void;
+}) {
+  return (
+    <div className="rounded-xl border bg-card p-4 transition-all hover:border-primary/30">
+      {/* Header */}
+      <div className="flex items-start gap-2.5 mb-3">
+        <span className="text-xl" role="img" aria-hidden="true">
+          {campaignTypeEmojis[subtype]}
+        </span>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-semibold">{campaignTypeLabels[subtype]}</h3>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            {subtypeSummary[subtype]}
+          </p>
+        </div>
+      </div>
+
+      {/* Mini visual */}
+      <div className="rounded-lg bg-muted/30 p-2.5 mb-3 flex items-center justify-center">
+        <SubtypeMiniVisual subtype={subtype} />
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex-1 text-[10px] h-7"
+          onClick={onLearnMore}
+        >
+          Learn More
+        </Button>
+        <Button
+          size="sm"
+          className="flex-1 text-[10px] h-7"
+          onClick={onSelect}
+        >
+          Select
+        </Button>
       </div>
     </div>
   );
 }
 
-function SubtypeCard({
+/* ── Learn More Modal ───────────────────────────────────── */
+
+function LearnMoreModal({
   subtype,
+  onClose,
   onSelect,
 }: {
   subtype: CampaignType;
+  onClose: () => void;
   onSelect: () => void;
 }) {
   const edu = subtypeEducation[subtype];
@@ -71,198 +145,196 @@ function SubtypeCard({
   const primaryFlow: FlowType = flows[0];
 
   return (
-    <div className="rounded-xl border bg-card p-5 transition-all hover:border-primary/30">
-      {/* Header */}
-      <div className="flex items-start gap-3 mb-4">
-        <span className="text-2xl" role="img" aria-hidden="true">
-          {campaignTypeEmojis[subtype]}
-        </span>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold">
-            {campaignTypeLabels[subtype]}
-          </h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {edu.whatItDoes}
-          </p>
-        </div>
-      </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="relative w-full max-w-lg rounded-xl border bg-card p-6 shadow-lg mx-4 max-h-[85vh] overflow-y-auto">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Close"
+        >
+          <X className="h-4 w-4" />
+        </button>
 
-      {/* Visual simulation */}
-      <div className="rounded-lg bg-muted/30 p-3 mb-4">
-        <SubtypeSimulation subtype={subtype} />
-      </div>
-
-      {/* Influence stage diagram */}
-      <div className="mb-4">
-        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-          Influence Stage
-        </p>
-        <CampaignFlowPreview flow={primaryFlow} />
-      </div>
-
-      {/* Info grid */}
-      <div className="grid grid-cols-2 gap-3 mb-4 text-[10px]">
-        <div>
-          <p className="font-semibold text-foreground mb-1">Where It Acts</p>
-          <p className="text-muted-foreground">{edu.whereItActs}</p>
-        </div>
-        <div>
-          <p className="font-semibold text-foreground mb-1">Metrics Impacted</p>
-          {edu.metricsImpacted.map((m) => (
-            <p key={m} className="text-muted-foreground">{m}</p>
-          ))}
-        </div>
-      </div>
-
-      {/* Best for tags */}
-      <div className="flex flex-wrap gap-1.5 mb-4">
-        {edu.bestFor.map((tag) => (
-          <span
-            key={tag}
-            className="inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] text-primary font-medium"
-          >
-            {tag}
+        {/* Header */}
+        <div className="flex items-center gap-2.5 mb-5">
+          <span className="text-2xl" role="img" aria-hidden="true">
+            {campaignTypeEmojis[subtype]}
           </span>
-        ))}
-      </div>
+          <h3 className="text-base font-semibold">{campaignTypeLabels[subtype]}</h3>
+        </div>
 
-      <Button className="w-full" onClick={onSelect}>
-        Select Subtype
-      </Button>
+        {/* Section 1 — What It Does */}
+        <div className="mb-5">
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
+            What It Does
+          </h4>
+          <p className="text-sm text-foreground">{edu.whatItDoes}</p>
+        </div>
+
+        {/* Section 2 — Where It Acts */}
+        <div className="mb-5">
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+            Where It Acts — {edu.whereItActs}
+          </h4>
+          <CampaignFlowPreview flow={primaryFlow} />
+        </div>
+
+        {/* Section 3 — Metrics Impacted */}
+        <div className="mb-5">
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
+            Metrics Impacted
+          </h4>
+          <div className="flex flex-wrap gap-1.5">
+            {edu.metricsImpacted.map((m) => (
+              <span
+                key={m}
+                className="inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] text-primary font-medium"
+              >
+                {m}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Section 4 — Strategic Fit */}
+        <div className="mb-5">
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
+            Best For
+          </h4>
+          <div className="flex flex-wrap gap-1.5">
+            {edu.bestFor.map((tag) => (
+              <span
+                key={tag}
+                className="inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-medium"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2">
+          <Button variant="outline" className="flex-1" onClick={onClose}>
+            Close
+          </Button>
+          <Button className="flex-1" onClick={onSelect}>
+            Select Subtype
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
 
-/* ── Subtype Visual Simulations ───────────────────────────── */
+/* ── Mini Visuals for Grid Cards ────────────────────────── */
 
-function SubtypeSimulation({ subtype }: { subtype: CampaignType }) {
+function SubtypeMiniVisual({ subtype }: { subtype: CampaignType }) {
   switch (subtype) {
     case CampaignType.DECISION_BID:
-      return <DecisionBidSimulation />;
+      return <DecisionMini />;
     case CampaignType.ROUTE_SPONSORSHIP:
-      return <RouteSimulation />;
+      return <RouteMini />;
     case CampaignType.VOICE_DISPLAY:
-      return <VoiceDisplaySimulation />;
+      return <VoiceDisplayMini />;
     case CampaignType.COMPARISON_PLACEMENT:
-      return <ComparisonSimulation />;
+      return <ComparisonMini />;
     case CampaignType.PREFERENCE_SLOT:
-      return <PreferenceSimulation />;
+      return <PreferenceMini />;
     case CampaignType.RESTOCK_SPONSORSHIP:
-      return <RestockSimulation />;
+      return <RestockMini />;
   }
 }
 
-function DecisionBidSimulation() {
+function DecisionMini() {
   return (
-    <div className="flex items-center justify-center gap-2 py-2" aria-label="Robot comparing and ranking products">
-      {["A", "B", "C"].map((label, i) => (
-        <div key={label} className="relative">
-          <div
-            className={`h-10 w-12 rounded border text-[10px] font-mono flex items-center justify-center ${
-              i === 0
-                ? "border-primary bg-primary/10 text-primary font-bold"
-                : "border-muted text-muted-foreground"
-            }`}
-          >
-            {label}
-          </div>
-          {i === 0 && (
-            <div className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 rounded-full bg-primary text-[7px] text-primary-foreground flex items-center justify-center font-bold">
-              1
-            </div>
-          )}
+    <div className="flex items-center gap-1.5" aria-label="Ranking shift">
+      {["A", "B", "C"].map((l, i) => (
+        <div
+          key={l}
+          className={`h-7 w-8 rounded border text-[8px] font-mono flex items-center justify-center ${
+            i === 0 ? "border-primary bg-primary/10 text-primary font-bold" : "border-muted text-muted-foreground"
+          }`}
+        >
+          {l}
         </div>
       ))}
-      <svg width="24" height="12" className="text-muted-foreground ml-1">
-        <path d="M0 6h18M16 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <svg width="16" height="10" className="text-muted-foreground">
+        <path d="M0 5h10M8 2l4 3-4 3" fill="none" stroke="currentColor" strokeWidth="1.2" />
       </svg>
-      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-sm">
-        🤖
+      <span className="text-sm">🤖</span>
+    </div>
+  );
+}
+
+function RouteMini() {
+  return (
+    <div className="relative h-10 flex items-center justify-center" aria-label="Map route">
+      <svg width="100" height="32" viewBox="0 0 100 32" className="text-muted-foreground">
+        <path d="M5 28 Q25 5 50 16 Q75 27 95 4" fill="none" stroke="currentColor" strokeWidth="1.2" strokeDasharray="3 2" opacity="0.4" />
+      </svg>
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded bg-primary px-1.5 py-0.5 text-[7px] font-bold text-primary-foreground">
+        📍 You
       </div>
     </div>
   );
 }
 
-function RouteSimulation() {
+function VoiceDisplayMini() {
   return (
-    <div className="relative h-16 flex items-center justify-center py-2" aria-label="Map route with sponsored pin">
-      <svg width="160" height="50" viewBox="0 0 160 50" className="text-muted-foreground">
-        <path d="M10 40 Q40 10 80 25 Q120 40 150 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.4" />
-        <circle cx="10" cy="40" r="3" fill="currentColor" opacity="0.3" />
-        <circle cx="150" cy="10" r="3" fill="currentColor" opacity="0.3" />
-      </svg>
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-        <div className="rounded bg-primary px-2 py-0.5 text-[8px] font-bold text-primary-foreground">
-          📍 Your Store
+    <div className="flex items-center gap-2" aria-label="Voice and display">
+      <span className="text-sm">🔊</span>
+      <div className="flex items-end gap-[2px]">
+        {[3, 5, 7, 4, 6].map((h, i) => (
+          <div key={i} className="w-[2px] rounded-full bg-primary/50" style={{ height: `${h * 1.5}px` }} />
+        ))}
+      </div>
+      <span className="text-[9px] text-muted-foreground">+</span>
+      <div className="h-7 w-10 rounded border border-primary/30 bg-primary/5 flex items-center justify-center text-[7px]">
+        📱
+      </div>
+    </div>
+  );
+}
+
+function ComparisonMini() {
+  return (
+    <div className="flex items-center gap-2" aria-label="Comparison">
+      <div className="h-8 w-10 rounded border-2 border-primary bg-primary/10 flex items-center justify-center text-[8px] font-bold text-primary">
+        You
+      </div>
+      <span className="text-[9px] text-muted-foreground">vs</span>
+      <div className="h-8 w-10 rounded border border-muted flex items-center justify-center text-[8px] text-muted-foreground">
+        B
+      </div>
+    </div>
+  );
+}
+
+function PreferenceMini() {
+  return (
+    <div className="flex items-center justify-center" aria-label="Recommended badge">
+      <div className="relative h-8 w-14 rounded border border-muted flex items-center justify-center">
+        <span className="text-[7px] text-muted-foreground">Product</span>
+        <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[6px] font-bold px-1.5 rounded-full whitespace-nowrap">
+          ⭐ Rec
         </div>
       </div>
     </div>
   );
 }
 
-function VoiceDisplaySimulation() {
+function RestockMini() {
   return (
-    <div className="flex items-center justify-center gap-4 py-2" aria-label="Voice prompt with display card">
-      <div className="flex items-center gap-1">
-        <span className="text-base">🔊</span>
-        <div className="flex items-end gap-[2px]">
-          {[3, 5, 7, 4, 6].map((h, i) => (
-            <div
-              key={i}
-              className="w-[3px] rounded-full bg-primary/50"
-              style={{ height: `${h * 2.5}px` }}
-            />
-          ))}
-        </div>
+    <div className="flex items-center gap-1.5" aria-label="Restock alert">
+      <div className="rounded border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 px-1.5 py-1 text-[7px] text-amber-700 dark:text-amber-400">
+        ⚠ Low
       </div>
-      <span className="text-muted-foreground text-[10px]">+</span>
-      <div className="h-10 w-16 rounded border border-primary/30 bg-primary/5 flex items-center justify-center text-[9px]">
-        📱 Card
-      </div>
-    </div>
-  );
-}
-
-function ComparisonSimulation() {
-  return (
-    <div className="flex items-center justify-center gap-3 py-2" aria-label="Side-by-side comparison with your brand highlighted">
-      <div className="h-12 w-16 rounded border-2 border-primary bg-primary/10 flex flex-col items-center justify-center">
-        <span className="text-[9px] font-bold text-primary">You</span>
-        <span className="text-[7px] text-primary/60">Featured</span>
-      </div>
-      <span className="text-muted-foreground text-xs">vs</span>
-      <div className="h-12 w-16 rounded border border-muted flex flex-col items-center justify-center">
-        <span className="text-[9px] text-muted-foreground">Other</span>
-        <span className="text-[7px] text-muted-foreground/60">Standard</span>
-      </div>
-    </div>
-  );
-}
-
-function PreferenceSimulation() {
-  return (
-    <div className="flex items-center justify-center py-2" aria-label="Product with recommended badge">
-      <div className="relative h-12 w-20 rounded border border-muted flex items-center justify-center">
-        <div className="text-[9px] text-muted-foreground">Product</div>
-        <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[7px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
-          ⭐ Recommended
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RestockSimulation() {
-  return (
-    <div className="flex items-center justify-center gap-2 py-2" aria-label="Low stock alert to branded suggestion">
-      <div className="rounded border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 px-2.5 py-1.5 text-[9px] text-amber-700 dark:text-amber-400">
-        ⚠ Low stock
-      </div>
-      <svg width="20" height="12" className="text-muted-foreground">
-        <path d="M0 6h14M12 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <svg width="12" height="8" className="text-muted-foreground">
+        <path d="M0 4h8M6 1l3 3-3 3" fill="none" stroke="currentColor" strokeWidth="1" />
       </svg>
-      <div className="rounded border border-primary/30 bg-primary/5 px-2.5 py-1.5 text-[9px] font-medium">
-        📦 Your Brand
+      <div className="rounded border border-primary/30 bg-primary/5 px-1.5 py-1 text-[7px] font-medium">
+        📦 You
       </div>
     </div>
   );
