@@ -45,6 +45,7 @@ export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
 
   // Upload state (live mode only)
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [assetPath, setAssetPath] = useState("");
   const [mediaType, setMediaType] = useState("");
   const [mimeType, setMimeType] = useState("");
@@ -80,18 +81,47 @@ export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
     }
 
     setUploading(true);
+    setUploadProgress(0);
     setFileName(file.name);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("orgId", "a0000000-0000-0000-0000-000000000001");
-
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Upload failed");
+      // Step 1: Get signed upload URL from our API (tiny JSON request)
+      const signRes = await fetch("/api/upload/sign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orgId: "a0000000-0000-0000-0000-000000000001",
+          fileName: file.name,
+          contentType: file.type,
+        }),
+      });
+      if (!signRes.ok) {
+        const err = await signRes.json();
+        throw new Error(err.error || "Failed to get upload URL");
       }
-      const { path } = await res.json();
+      const { signedUrl, path, token } = await signRes.json();
+
+      // Step 2: Upload file directly to Supabase via XHR (supports progress)
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener("progress", (e) => {
+          if (e.lengthComputable) {
+            setUploadProgress(Math.round((e.loaded / e.total) * 100));
+          }
+        });
+        xhr.addEventListener("load", () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve();
+          } else {
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+        });
+        xhr.addEventListener("error", () => reject(new Error("Upload failed")));
+        xhr.open("PUT", signedUrl);
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+        xhr.setRequestHeader("Content-Type", file.type);
+        xhr.send(file);
+      });
+
       setAssetPath(path);
       setMediaType(file.type.startsWith("video") ? "video" : "image");
       setMimeType(file.type);
@@ -100,6 +130,7 @@ export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
       alert("Upload failed. Please try again.");
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -253,9 +284,17 @@ export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
                 disabled={uploading}
               />
               {uploading ? (
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-3 w-full">
                   <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                  <span className="text-sm text-muted-foreground">Uploading...</span>
+                  <span className="text-sm text-muted-foreground">
+                    Uploading... {uploadProgress}%
+                  </span>
+                  <div className="w-full max-w-xs h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-full transition-all duration-200"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
                 </div>
               ) : assetPath ? (
                 <div className="flex flex-col items-center gap-2">
@@ -273,7 +312,7 @@ export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
                   <div>
                     <span className="text-sm font-medium">Click to upload</span>
                     <p className="text-xs text-muted-foreground mt-1">
-                      PNG, JPEG, WebP, MP4, or WebM (max 10MB)
+                      PNG, JPEG, WebP, MP4, or WebM
                     </p>
                   </div>
                   <div className="flex gap-3 mt-1">

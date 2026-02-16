@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 
+// App Router route segment config
+export const maxDuration = 60;
+
 const BUCKET = "creative-assets";
+const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
@@ -12,6 +16,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: "Missing file or orgId" },
       { status: 400 }
+    );
+  }
+
+  if (file.size > MAX_FILE_SIZE) {
+    return NextResponse.json(
+      { error: "File too large. Maximum size is 25MB." },
+      { status: 413 }
     );
   }
 
