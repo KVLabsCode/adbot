@@ -22,6 +22,13 @@ export enum FormatType {
   ROUTE_PIN = "route_pin",
 }
 
+export enum RobotType {
+  DELIVERY = "delivery",
+  RETAIL = "retail",
+  HOME = "home",
+  HOSPITALITY = "hospitality",
+}
+
 export enum CampaignStatus {
   ACTIVE = "active",
   PAUSED = "paused",
@@ -82,13 +89,20 @@ export interface Campaign {
   createdAt: string;
 }
 
+export type OptimizationStrategy = "maximize_selection" | "maximize_value" | "balanced";
+
 export interface CampaignDraft {
+  robotType?: RobotType;
   name?: string;
   type?: CampaignType;
   flow?: FlowType;
   formats: FormatContent[];
   budget?: number;
+  optimizationStrategy?: OptimizationStrategy;
+  strategyConfig?: Record<string, unknown>;
 }
+
+export type LaunchFlowStep = "type-select" | "education" | "setup" | "review" | null;
 
 export interface ChatMessage {
   id: string;
@@ -175,13 +189,17 @@ export interface AdvertiserState {
   actionHistory: ActionEvent[];
   actionCounter: number;
   hasSeenOnboarding: boolean;
+  launchFlowStep: LaunchFlowStep;
 
   setView: (view: string) => void;
   dismissOnboarding: () => void;
+  setLaunchFlowStep: (step: LaunchFlowStep) => void;
   addMessage: (message: ChatMessage) => void;
   updateMessageContent: (id: string, content: string) => void;
   finalizeMessage: (id: string) => void;
-  createDraft: (type: CampaignType, name: string) => void;
+  createDraft: (type: CampaignType, name: string, robotType?: RobotType) => void;
+  setDraftRobotType: (robotType: RobotType) => void;
+  setDraftStrategyConfig: (config: Record<string, unknown>) => void;
   setDraftFlow: (flow: FlowType) => void;
   addDraftFormat: (format: FormatContent) => void;
   setDraftBudget: (budget: number) => void;

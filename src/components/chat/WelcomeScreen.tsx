@@ -1,16 +1,14 @@
 "use client";
 
-import { ActionType } from "@/types";
 import { useStore } from "@/store";
-import { PromptChips } from "./PromptChips";
+import { AgenticActions, AgenticActionId } from "@/components/studio/AgenticActions";
 import { Target } from "lucide-react";
 
 interface WelcomeScreenProps {
-  onPromptSelect: (label: string) => void;
-  onAction?: (actionType: ActionType, payload: Record<string, unknown>) => void;
+  onAction: (action: AgenticActionId) => void;
 }
 
-export function WelcomeScreen({ onPromptSelect, onAction }: WelcomeScreenProps) {
+export function WelcomeScreen({ onAction }: WelcomeScreenProps) {
   const campaigns = useStore((s) => s.campaigns);
   const hasCampaigns = campaigns.length > 0;
 
@@ -26,10 +24,10 @@ export function WelcomeScreen({ onPromptSelect, onAction }: WelcomeScreenProps) 
         <p className="text-sm text-muted-foreground max-w-md mx-auto">
           {hasCampaigns
             ? "Ask about your campaigns, check performance, or launch a new one."
-            : "Launch a robot decision campaign to influence how robots choose your brand. Pick a campaign type below to get started."}
+            : "Launch a robot decision campaign to influence how robots choose your brand. Pick an action below to get started."}
         </p>
       </div>
-      <PromptChips onPromptSelect={onPromptSelect} onAction={onAction} />
+      <AgenticActions onAction={onAction} />
     </div>
   );
 }

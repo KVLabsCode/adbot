@@ -1,4 +1,4 @@
-import { CampaignType, FlowType, FormatType } from "@/types";
+import { CampaignType, FlowType, FormatType, RobotType } from "@/types";
 
 export const campaignTypeToFlows: Record<CampaignType, FlowType[]> = {
   [CampaignType.DECISION_BID]: [FlowType.PRE_DECISION, FlowType.COMPARISON_STAGE],
@@ -64,4 +64,298 @@ export const formatTypeLabels: Record<FormatType, string> = {
   [FormatType.HIGHLIGHT_BADGE]: "Highlight Badge",
   [FormatType.RESTOCK_ALERT_BANNER]: "Restock Alert Banner",
   [FormatType.ROUTE_PIN]: "Route Pin",
+};
+
+// ── Robot Type Mappings ──────────────────────────────────────
+
+export const robotTypeToSubtypes: Record<RobotType, CampaignType[]> = {
+  [RobotType.DELIVERY]: [
+    CampaignType.DECISION_BID,
+    CampaignType.ROUTE_SPONSORSHIP,
+    CampaignType.VOICE_DISPLAY,
+  ],
+  [RobotType.RETAIL]: [
+    CampaignType.COMPARISON_PLACEMENT,
+    CampaignType.PREFERENCE_SLOT,
+    CampaignType.RESTOCK_SPONSORSHIP,
+  ],
+  [RobotType.HOME]: [
+    CampaignType.RESTOCK_SPONSORSHIP,
+    CampaignType.VOICE_DISPLAY,
+    CampaignType.PREFERENCE_SLOT,
+  ],
+  [RobotType.HOSPITALITY]: [
+    CampaignType.DECISION_BID,
+    CampaignType.COMPARISON_PLACEMENT,
+    CampaignType.VOICE_DISPLAY,
+  ],
+};
+
+export const robotTypeLabels: Record<RobotType, string> = {
+  [RobotType.DELIVERY]: "Delivery Robots",
+  [RobotType.RETAIL]: "Retail / Store Robots",
+  [RobotType.HOME]: "Home Robots",
+  [RobotType.HOSPITALITY]: "Hospitality / Service Robots",
+};
+
+export const robotTypeEmojis: Record<RobotType, string> = {
+  [RobotType.DELIVERY]: "\ud83d\ude9a",
+  [RobotType.RETAIL]: "\ud83c\udfec",
+  [RobotType.HOME]: "\ud83c\udfe0",
+  [RobotType.HOSPITALITY]: "\ud83c\udfe2",
+};
+
+export const robotTypeDescriptions: Record<RobotType, string> = {
+  [RobotType.DELIVERY]:
+    "Autonomous robots delivering food, groceries, and parcels in urban environments.",
+  [RobotType.RETAIL]:
+    "Robots assisting customers inside physical stores with navigation and product information.",
+  [RobotType.HOME]:
+    "Robots operating in homes assisting with replenishment and smart shopping.",
+  [RobotType.HOSPITALITY]:
+    "Robots operating in hotels, restaurants, and controlled service environments.",
+};
+
+export const robotTypeCapabilities: Record<RobotType, string[]> = {
+  [RobotType.DELIVERY]: [
+    "\ud83d\udcf1 On-device display",
+    "\ud83d\udd0a Voice output",
+    "\ud83d\uddfa Route awareness",
+    "\ud83d\udccd Location-based triggers",
+    "\ud83d\udce6 Delivery moment screen",
+  ],
+  [RobotType.RETAIL]: [
+    "\ud83d\udcf1 Large comparison screens",
+    "\ud83d\udd0e Product search & ranking",
+    "\ud83d\udce6 Inventory detection",
+    "\ud83d\udd0a Voice assistance",
+  ],
+  [RobotType.HOME]: [
+    "\ud83d\udd0a Voice prompts",
+    "\ud83d\udcf1 Small display",
+    "\ud83d\udce6 Inventory awareness",
+    "\ud83d\udd01 Subscription suggestions",
+  ],
+  [RobotType.HOSPITALITY]: [
+    "\ud83d\udcf1 Screen surfaces",
+    "\ud83d\udd0a Greeting voice",
+    "\ud83d\udce6 Contextual upsells",
+  ],
+};
+
+export const robotTypeAdvantages: Record<RobotType, string[]> = {
+  [RobotType.DELIVERY]: [
+    "High purchase intent",
+    "Real-world location context",
+    "Route-based influence",
+    "Moment-of-delivery branding",
+  ],
+  [RobotType.RETAIL]: [
+    "Direct comparison influence",
+    "Shelf-level conversion",
+    "High conversion proximity",
+  ],
+  [RobotType.HOME]: [
+    "Long-term preference shaping",
+    "Recurring purchase cycles",
+    "Household-level targeting",
+  ],
+  [RobotType.HOSPITALITY]: [
+    "Captive attention",
+    "Premium placement",
+    "Context-aware messaging",
+  ],
+};
+
+export const robotTypeExamples: Record<RobotType, string> = {
+  [RobotType.DELIVERY]: "Serve Robotics, Starship",
+  [RobotType.RETAIL]: "Tally by Simbe, BrainOS",
+  [RobotType.HOME]: "Amazon Astro, Samsung Bot",
+  [RobotType.HOSPITALITY]: "Relay by Savioke, BellaBot",
+};
+
+// ── Subtype Education ────────────────────────────────────────
+
+export interface SubtypeEducationData {
+  whatItDoes: string;
+  whereItActs: string;
+  bestFor: string[];
+  metricsImpacted: string[];
+}
+
+export const subtypeEducation: Record<CampaignType, SubtypeEducationData> = {
+  [CampaignType.DECISION_BID]: {
+    whatItDoes: "Influences the ranking algorithm when robots evaluate options in real time.",
+    whereItActs: "Comparison stage",
+    bestFor: ["Competitive verticals", "Marketplace positioning"],
+    metricsImpacted: ["Robot Decision Rate", "Avg Selling Price"],
+  },
+  [CampaignType.ROUTE_SPONSORSHIP]: {
+    whatItDoes: "Influences robot routing to pass near or recommend your location.",
+    whereItActs: "Route planning phase",
+    bestFor: ["Retail foot traffic", "Location-based activation"],
+    metricsImpacted: ["Route Impressions", "Visit Rate"],
+  },
+  [CampaignType.VOICE_DISPLAY]: {
+    whatItDoes: "Displays brand message with voice + screen at key moments.",
+    whereItActs: "Post-decision reinforcement",
+    bestFor: ["Awareness", "Upsell", "Cross-promotion"],
+    metricsImpacted: ["Brand Recall", "Engagement Rate"],
+  },
+  [CampaignType.COMPARISON_PLACEMENT]: {
+    whatItDoes: "Places your brand prominently during side-by-side robot evaluations.",
+    whereItActs: "Comparison stage",
+    bestFor: ["Product differentiation", "Premium positioning"],
+    metricsImpacted: ["Selection Rate", "Comparison Win Rate"],
+  },
+  [CampaignType.PREFERENCE_SLOT]: {
+    whatItDoes: "Pins your brand as the recommended choice before decisions are made.",
+    whereItActs: "Pre-decision influence",
+    bestFor: ["Brand loyalty", "Default positioning"],
+    metricsImpacted: ["Recommendation Rate", "Repeat Selection"],
+  },
+  [CampaignType.RESTOCK_SPONSORSHIP]: {
+    whatItDoes: "Triggers your brand when robots detect low inventory and initiate restocking.",
+    whereItActs: "Contextual trigger",
+    bestFor: ["CPG brands", "Auto-replenishment"],
+    metricsImpacted: ["Restock Capture Rate", "Cost Per Restock"],
+  },
+};
+
+// ── Subtype-Specific Strategy Options ────────────────────────
+
+export interface StrategyOption {
+  id: string;
+  label: string;
+  options: { value: string; label: string }[];
+}
+
+export const subtypeStrategyOptions: Record<CampaignType, StrategyOption[]> = {
+  [CampaignType.DECISION_BID]: [
+    {
+      id: "influenceStage",
+      label: "Influence Stage",
+      options: [
+        { value: "pre_decision", label: "Pre-Decision" },
+        { value: "comparison", label: "Comparison" },
+      ],
+    },
+    {
+      id: "objective",
+      label: "Optimization Objective",
+      options: [
+        { value: "selection_rate", label: "Maximize Selection Rate" },
+        { value: "value", label: "Maximize Value" },
+        { value: "balanced", label: "Balanced" },
+      ],
+    },
+    {
+      id: "aggressiveness",
+      label: "Aggressiveness",
+      options: [
+        { value: "conservative", label: "Conservative" },
+        { value: "moderate", label: "Moderate" },
+        { value: "aggressive", label: "Aggressive" },
+      ],
+    },
+  ],
+  [CampaignType.ROUTE_SPONSORSHIP]: [
+    {
+      id: "radius",
+      label: "Influence Radius",
+      options: [
+        { value: "1mi", label: "1 mile" },
+        { value: "3mi", label: "3 miles" },
+        { value: "5mi", label: "5 miles" },
+      ],
+    },
+    {
+      id: "priority",
+      label: "Priority Level",
+      options: [
+        { value: "standard", label: "Standard" },
+        { value: "preferred", label: "Preferred" },
+        { value: "exclusive", label: "Exclusive" },
+      ],
+    },
+  ],
+  [CampaignType.RESTOCK_SPONSORSHIP]: [
+    {
+      id: "triggerThreshold",
+      label: "Trigger Threshold",
+      options: [
+        { value: "low", label: "Low stock" },
+        { value: "critical", label: "Critical only" },
+        { value: "any_change", label: "Any inventory change" },
+      ],
+    },
+    {
+      id: "frequency",
+      label: "Replenishment Frequency",
+      options: [
+        { value: "daily", label: "Daily" },
+        { value: "weekly", label: "Weekly" },
+        { value: "on_demand", label: "On-demand" },
+      ],
+    },
+  ],
+  [CampaignType.COMPARISON_PLACEMENT]: [
+    {
+      id: "position",
+      label: "Position Preference",
+      options: [
+        { value: "top", label: "Top" },
+        { value: "featured", label: "Featured" },
+        { value: "inline", label: "Inline" },
+      ],
+    },
+    {
+      id: "highlightIntensity",
+      label: "Highlight Intensity",
+      options: [
+        { value: "subtle", label: "Subtle" },
+        { value: "standard", label: "Standard" },
+        { value: "bold", label: "Bold" },
+      ],
+    },
+  ],
+  [CampaignType.PREFERENCE_SLOT]: [
+    {
+      id: "duration",
+      label: "Preference Duration",
+      options: [
+        { value: "7d", label: "7 days" },
+        { value: "14d", label: "14 days" },
+        { value: "30d", label: "30 days" },
+      ],
+    },
+    {
+      id: "refreshFrequency",
+      label: "Refresh Frequency",
+      options: [
+        { value: "daily", label: "Daily" },
+        { value: "weekly", label: "Weekly" },
+      ],
+    },
+  ],
+  [CampaignType.VOICE_DISPLAY]: [
+    {
+      id: "voiceTone",
+      label: "Voice Tone",
+      options: [
+        { value: "neutral", label: "Neutral" },
+        { value: "enthusiastic", label: "Enthusiastic" },
+        { value: "premium", label: "Premium" },
+      ],
+    },
+    {
+      id: "displayTiming",
+      label: "Display Timing",
+      options: [
+        { value: "immediate", label: "Immediate" },
+        { value: "delayed", label: "Delayed" },
+        { value: "on_interaction", label: "On Interaction" },
+      ],
+    },
+  ],
 };

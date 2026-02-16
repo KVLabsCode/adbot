@@ -9,6 +9,7 @@ import {
   FlowType,
   FormatContent,
   ChatMessage,
+  RobotType,
 } from "@/types";
 import initialCampaigns from "@/fixtures/campaigns.json";
 import initialReporting from "@/fixtures/reporting.json";
@@ -37,6 +38,7 @@ function getInitialState() {
     actionHistory: [] as ActionEvent[],
     actionCounter: 0,
     hasSeenOnboarding: false,
+    launchFlowStep: null as AdvertiserState["launchFlowStep"],
   };
 }
 
@@ -48,6 +50,8 @@ export const useStore = create<AdvertiserState>((set, get) => ({
   setView: (view) => set({ activeView: view }),
 
   dismissOnboarding: () => set({ hasSeenOnboarding: true }),
+
+  setLaunchFlowStep: (step) => set({ launchFlowStep: step }),
 
   addMessage: (message) =>
     set((state) => ({ conversation: [...state.conversation, message] })),
@@ -66,8 +70,20 @@ export const useStore = create<AdvertiserState>((set, get) => ({
       ),
     })),
 
-  createDraft: (type: CampaignType, name: string) =>
-    set({ campaignDraft: { type, name, formats: [] } }),
+  createDraft: (type: CampaignType, name: string, robotType?: RobotType) =>
+    set({ campaignDraft: { type, name, formats: [], robotType } }),
+
+  setDraftRobotType: (robotType: RobotType) =>
+    set((state) => {
+      if (!state.campaignDraft) return {};
+      return { campaignDraft: { ...state.campaignDraft, robotType } };
+    }),
+
+  setDraftStrategyConfig: (config: Record<string, unknown>) =>
+    set((state) => {
+      if (!state.campaignDraft) return {};
+      return { campaignDraft: { ...state.campaignDraft, strategyConfig: config } };
+    }),
 
   setDraftFlow: (flow: FlowType) =>
     set((state) => {
