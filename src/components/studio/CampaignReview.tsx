@@ -15,8 +15,9 @@ import {
   robotTypeEmojis,
   subtypeStrategyOptions,
 } from "@/lib/campaignMappings";
+import { useStore } from "@/store";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Rocket, Check } from "lucide-react";
+import { ArrowLeft, Rocket, Check, AlertTriangle } from "lucide-react";
 
 interface CampaignReviewProps {
   robotType: RobotType;
@@ -25,6 +26,8 @@ interface CampaignReviewProps {
   formats: FormatContent[];
   budget: number;
   strategyConfig: Record<string, unknown>;
+  creativeIds: string[];
+  isDemoMode: boolean;
   onLaunch: () => void;
   onBack: () => void;
 }
@@ -36,10 +39,19 @@ export function CampaignReview({
   formats,
   budget,
   strategyConfig,
+  creativeIds,
+  isDemoMode,
   onLaunch,
   onBack,
 }: CampaignReviewProps) {
   const strategyOptions = subtypeStrategyOptions[campaignType];
+  const creatives = useStore((s) => s.creatives);
+
+  const selectedCreativeNames = creativeIds
+    .map((id) => creatives.find((c) => c.id === id)?.name)
+    .filter(Boolean);
+
+  const canLaunch = isDemoMode || creativeIds.length > 0;
 
   return (
     <div className="flex-1 overflow-y-auto p-4">
@@ -50,7 +62,7 @@ export function CampaignReview({
           aria-label="Go back"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Strategy
+          Back
         </button>
 
         <h2 className="text-lg font-semibold mb-1">Review Campaign</h2>
@@ -80,6 +92,12 @@ export function CampaignReview({
               label="Ad Formats"
               value={formats.map((f) => formatTypeLabels[f.type]).join(", ")}
             />
+            {selectedCreativeNames.length > 0 && (
+              <SummaryRow
+                label="Creatives"
+                value={selectedCreativeNames.join(", ")}
+              />
+            )}
             {/* Strategy config values */}
             {strategyOptions.map((opt) => {
               const selectedValue = strategyConfig[opt.id] as string | undefined;
@@ -131,13 +149,34 @@ export function CampaignReview({
           </div>
         </div>
 
+        {/* Live mode warning */}
+        {!isDemoMode && creativeIds.length === 0 && (
+          <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 mb-4">
+            <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-medium text-amber-600">
+                Live campaigns require at least one uploaded creative.
+              </p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                Go back and select a validated creative to continue.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Launch CTA */}
-        <Button className="w-full h-12 text-sm font-semibold" onClick={onLaunch}>
+        <Button
+          className="w-full h-12 text-sm font-semibold"
+          onClick={onLaunch}
+          disabled={!canLaunch}
+        >
           <Rocket className="h-4 w-4 mr-2" />
           Launch Campaign
         </Button>
         <p className="text-[10px] text-muted-foreground text-center mt-2">
-          Your campaign will go live across 2,140 AdPods instantly.
+          {isDemoMode
+            ? "Your campaign will go live across 2,140 AdPods instantly."
+            : "Your campaign will be persisted to the database and available via the edge API."}
         </p>
       </div>
     </div>

@@ -78,13 +78,6 @@ export function DisplayCardBuilder({ value, onChange }: BuilderProps) {
             maxLength={formatFieldConstraints.cta + 10}
           />
         </div>
-
-        <div>
-          <label className="text-xs font-medium">Icon Upload</label>
-          <div className="mt-1 rounded-lg border-2 border-dashed p-4 text-center text-xs text-muted-foreground">
-            Icon upload (mock) — drag & drop or click
-          </div>
-        </div>
       </div>
 
       <div>

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload, Image, Film, Check } from "lucide-react";
 import { FormatType, RobotType, FormatContent, CreativeStatus } from "@/types";
 import { useStore } from "@/store";
 import { formatTypeLabels } from "@/lib/campaignMappings";
 import { formatToRobotCompatibility } from "@/lib/creativeMappings";
 import { validateCreative } from "@/lib/validationEngine";
+import { useDemoMode } from "@/lib/supabase/hooks";
 import { FormatSelector } from "./FormatSelector";
 import { RobotCompatibilitySelector } from "./RobotCompatibilitySelector";
 import { DisplayCardBuilder } from "./builders/DisplayCardBuilder";
@@ -18,7 +19,15 @@ import { DialogueScriptBuilder } from "./builders/DialogueScriptBuilder";
 import { GestureCueBuilder } from "./builders/GestureCueBuilder";
 import { Button } from "@/components/ui/button";
 
-type FlowStep = "format-select" | "robot-select" | "builder";
+const ALLOWED_MEDIA_TYPES = [
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "video/mp4",
+  "video/webm",
+];
+
+type FlowStep = "format-select" | "robot-select" | "upload-media" | "builder";
 
 interface CreateNewFlowProps {
   onComplete: () => void;
@@ -27,13 +36,25 @@ interface CreateNewFlowProps {
 export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
   const addCreative = useStore((s) => s.addCreative);
   const addValidationLog = useStore((s) => s.addValidationLog);
+  const { isDemoMode } = useDemoMode();
 
   const [step, setStep] = useState<FlowStep>("format-select");
   const [selectedFormat, setSelectedFormat] = useState<FormatType | null>(null);
   const [selectedRobots, setSelectedRobots] = useState<RobotType[]>([]);
   const [content, setContent] = useState<Partial<FormatContent>>({});
 
-  const steps: FlowStep[] = ["format-select", "robot-select", "builder"];
+  // Upload state (live mode only)
+  const [uploading, setUploading] = useState(false);
+  const [assetPath, setAssetPath] = useState("");
+  const [mediaType, setMediaType] = useState("");
+  const [mimeType, setMimeType] = useState("");
+  const [fileName, setFileName] = useState("");
+
+  const isLiveMode = isDemoMode === false;
+
+  const steps: FlowStep[] = isLiveMode
+    ? ["format-select", "robot-select", "upload-media", "builder"]
+    : ["format-select", "robot-select", "builder"];
   const stepIndex = steps.indexOf(step);
 
   const handleFormatSelect = (fmt: FormatType) => {
@@ -46,11 +67,52 @@ export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
 
   const handleRobotContinue = () => {
     if (selectedRobots.length === 0) return;
+    setStep(isLiveMode ? "upload-media" : "builder");
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!ALLOWED_MEDIA_TYPES.includes(file.type)) {
+      alert("Unsupported file type. Use PNG, JPEG, WebP, MP4, or WebM.");
+      return;
+    }
+
+    setUploading(true);
+    setFileName(file.name);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("orgId", "a0000000-0000-0000-0000-000000000001");
+
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Upload failed");
+      }
+      const { path } = await res.json();
+      setAssetPath(path);
+      setMediaType(file.type.startsWith("video") ? "video" : "image");
+      setMimeType(file.type);
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleUploadContinue = () => {
+    if (!assetPath) return;
     setStep("builder");
   };
 
   const handleSave = () => {
     if (!selectedFormat) return;
+
+    // In live mode, require an uploaded asset
+    if (isLiveMode && !assetPath) return;
 
     const creative = {
       id: `cr-${Date.now()}`,
@@ -61,6 +123,12 @@ export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
       content: { ...content, type: selectedFormat } as FormatContent,
       validationResults: [] as ReturnType<typeof validateCreative>,
       lastModified: new Date().toISOString(),
+      // Media fields (live mode)
+      ...(assetPath && {
+        assetPath,
+        mediaType,
+        mimeType,
+      }),
     };
 
     const results = validateCreative(creative);
@@ -140,7 +208,7 @@ export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
           Step {stepIndex + 1} of {steps.length}
         </p>
 
-        {/* Step 1: Format Selection */}
+        {/* Step: Format Selection */}
         {step === "format-select" && (
           <div>
             <h2 className="text-lg font-semibold mb-4">Select Ad Format</h2>
@@ -148,7 +216,7 @@ export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
           </div>
         )}
 
-        {/* Step 2: Robot Selection */}
+        {/* Step: Robot Selection */}
         {step === "robot-select" && selectedFormat && (
           <div>
             <h2 className="text-lg font-semibold mb-4">Select Robot Compatibility</h2>
@@ -168,16 +236,87 @@ export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
           </div>
         )}
 
-        {/* Step 3: Builder */}
+        {/* Step: Upload Media (live mode only) */}
+        {step === "upload-media" && (
+          <div>
+            <h2 className="text-lg font-semibold mb-1">Upload Creative Media</h2>
+            <p className="text-sm text-muted-foreground mb-5">
+              Upload an image or video for your creative. This will be displayed on AdPod devices.
+            </p>
+
+            <label className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-accent/50 transition-colors">
+              <input
+                type="file"
+                accept={ALLOWED_MEDIA_TYPES.join(",")}
+                className="hidden"
+                onChange={handleFileSelect}
+                disabled={uploading}
+              />
+              {uploading ? (
+                <div className="flex flex-col items-center gap-2">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <span className="text-sm text-muted-foreground">Uploading...</span>
+                </div>
+              ) : assetPath ? (
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10">
+                    <Check className="h-5 w-5 text-emerald-600" />
+                  </div>
+                  <span className="text-sm font-medium">{fileName}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {mediaType === "video" ? "Video" : "Image"} uploaded — click to replace
+                  </span>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-3">
+                  <Upload className="h-8 w-8 text-muted-foreground" />
+                  <div>
+                    <span className="text-sm font-medium">Click to upload</span>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      PNG, JPEG, WebP, MP4, or WebM (max 10MB)
+                    </p>
+                  </div>
+                  <div className="flex gap-3 mt-1">
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Image className="h-3 w-3" /> Images
+                    </span>
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Film className="h-3 w-3" /> Videos
+                    </span>
+                  </div>
+                </div>
+              )}
+            </label>
+
+            <Button
+              className="w-full mt-4"
+              disabled={!assetPath}
+              onClick={handleUploadContinue}
+            >
+              Continue to Builder
+            </Button>
+          </div>
+        )}
+
+        {/* Step: Builder */}
         {step === "builder" && selectedFormat && (
           <div>
             <h2 className="text-lg font-semibold mb-4">
               Build {formatTypeLabels[selectedFormat]}
             </h2>
             {renderBuilder()}
-            <Button className="w-full mt-4" onClick={handleSave}>
+            <Button
+              className="w-full mt-4"
+              onClick={handleSave}
+              disabled={isLiveMode && !assetPath}
+            >
               Save & Validate Creative
             </Button>
+            {isLiveMode && !assetPath && (
+              <p className="text-[10px] text-amber-600 text-center mt-2">
+                Live mode requires an uploaded media file
+              </p>
+            )}
           </div>
         )}
       </div>

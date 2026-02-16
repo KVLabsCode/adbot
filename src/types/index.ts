@@ -99,6 +99,9 @@ export interface Creative {
   validationResults: ValidationResult[];
   lastModified: string;
   campaignId?: string;
+  assetPath?: string;
+  mediaType?: string;
+  mimeType?: string;
 }
 
 export interface ValidationResult {
@@ -133,6 +136,7 @@ export interface Campaign {
     rdr: number;
   };
   createdAt: string;
+  creativeIds?: string[];
 }
 
 export type OptimizationStrategy = "maximize_selection" | "maximize_value" | "balanced";
@@ -146,6 +150,7 @@ export interface CampaignDraft {
   budget?: number;
   optimizationStrategy?: OptimizationStrategy;
   strategyConfig?: Record<string, unknown>;
+  creativeIds?: string[];
 }
 
 export type LaunchFlowStep = "type-select" | "education" | "setup" | "review" | null;
@@ -252,6 +257,7 @@ export interface AdvertiserState {
   setDraftFlow: (flow: FlowType) => void;
   addDraftFormat: (format: FormatContent) => void;
   setDraftBudget: (budget: number) => void;
+  setDraftCreativeIds: (ids: string[]) => void;
   launchDraft: (metrics?: Campaign["metrics"]) => Campaign | null;
   selectCampaign: (id: string | null) => void;
   pauseCampaign: (id: string) => void;

@@ -1,18 +1,18 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { MessageSquare, Target, BarChart3, CreditCard, Palette, RotateCcw } from "lucide-react";
+import { MessageSquare, Target, BarChart3, CreditCard, RotateCcw, Database, FlaskConical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useStore } from "@/store";
 import { CampaignStatus } from "@/types";
 import { cn } from "@/lib/utils";
+import { useDemoMode } from "@/lib/supabase/hooks";
 
 const navItems = [
   { label: "Studio", href: "/studio", icon: MessageSquare },
   { label: "Campaigns", href: "/campaigns", icon: Target },
-  { label: "Ad Formats", href: "/formats", icon: Palette },
   { label: "Reporting", href: "/reporting", icon: BarChart3 },
   { label: "Billing", href: "/billing", icon: CreditCard },
 ];
@@ -22,6 +22,7 @@ export function Sidebar() {
   const router = useRouter();
   const resetDemo = useStore((s) => s.resetDemo);
   const campaigns = useStore((s) => s.campaigns);
+  const { isDemoMode, toggleDemoMode } = useDemoMode();
   const activeCampaignCount = campaigns.filter(
     (c) => c.status === CampaignStatus.ACTIVE
   ).length;
@@ -62,6 +63,60 @@ export function Sidebar() {
           );
         })}
       </nav>
+      <Separator />
+      {/* Demo Mode Toggle Panel */}
+      <div className="px-3 py-3">
+        <div
+          className={cn(
+            "rounded-lg border p-3 transition-colors",
+            isDemoMode
+              ? "border-amber-500/30 bg-amber-500/5"
+              : "border-emerald-500/30 bg-emerald-500/5"
+          )}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            {isDemoMode ? (
+              <FlaskConical className="h-3.5 w-3.5 text-amber-600" />
+            ) : (
+              <Database className="h-3.5 w-3.5 text-emerald-600" />
+            )}
+            <span
+              className={cn(
+                "text-[10px] font-semibold uppercase tracking-wider",
+                isDemoMode ? "text-amber-600" : "text-emerald-600"
+              )}
+            >
+              {isDemoMode ? "Demo Mode" : "Live Mode"}
+            </span>
+          </div>
+          <p className="text-[10px] text-muted-foreground mb-2.5 leading-relaxed">
+            {isDemoMode
+              ? "Using local fixtures. No data persisted."
+              : "Connected to Supabase. All changes saved."}
+          </p>
+          <button
+            onClick={() => {
+              if (isDemoMode !== null) {
+                toggleDemoMode(!isDemoMode);
+              }
+            }}
+            disabled={isDemoMode === null}
+            className={cn(
+              "w-full rounded-md px-2.5 py-1.5 text-[11px] font-medium transition-colors",
+              isDemoMode
+                ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                : "bg-amber-600 text-white hover:bg-amber-700",
+              isDemoMode === null && "opacity-50 cursor-not-allowed"
+            )}
+          >
+            {isDemoMode === null
+              ? "Loading..."
+              : isDemoMode
+                ? "Switch to Live"
+                : "Switch to Demo"}
+          </button>
+        </div>
+      </div>
       <Separator />
       <div className="p-2">
         <Button
