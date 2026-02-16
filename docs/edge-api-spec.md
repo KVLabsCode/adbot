@@ -9,7 +9,7 @@ The AdBot platform serves ad creatives (images and videos) to Raspberry Pi-power
 ## Base URL
 
 ```
-Production:  https://<your-vercel-domain>/api/edge/live
+Production:  https://adbot-nine.vercel.app/api/edge/live
 Local dev:   http://localhost:3000/api/edge/live
 ```
 
