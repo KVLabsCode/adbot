@@ -161,7 +161,7 @@ export const useStore = create<AdvertiserState>((set, get) => ({
 
     // Write-through via API route
     if (!_demoMode) {
-      const row = campaignAppToRow(campaign);
+      const row = campaignAppToRow(campaign, undefined, draft.robotType);
       fetch("/api/campaigns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
