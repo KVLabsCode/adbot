@@ -5,6 +5,7 @@ import {
   ActionType,
   Campaign,
   CampaignType,
+  CampaignSchedule,
   CampaignStatus,
   FlowType,
   FormatContent,
@@ -128,6 +129,12 @@ export const useStore = create<AdvertiserState>((set, get) => ({
       return { campaignDraft: { ...state.campaignDraft, budget } };
     }),
 
+  setDraftSchedule: (schedule: CampaignSchedule) =>
+    set((state) => {
+      if (!state.campaignDraft) return {};
+      return { campaignDraft: { ...state.campaignDraft, schedule } };
+    }),
+
   setDraftCreativeIds: (ids: string[]) =>
     set((state) => {
       if (!state.campaignDraft) return {};
@@ -152,6 +159,7 @@ export const useStore = create<AdvertiserState>((set, get) => ({
       metrics: metrics ?? { asp: 0, dcv: 0, cpd: 0, rdr: 0 },
       createdAt: new Date().toISOString(),
       creativeIds: draft.creativeIds ?? [],
+      schedule: draft.schedule,
     };
 
     set((state) => ({
@@ -232,6 +240,26 @@ export const useStore = create<AdvertiserState>((set, get) => ({
           budget_cents: Math.round((campaign.budget + amount) * 100),
         }),
       }).catch((err) => console.error("Failed to persist budget adjustment:", err));
+    }
+  },
+
+  updateCampaignSchedule: (id: string, schedule: CampaignSchedule) => {
+    set((state) => ({
+      campaigns: state.campaigns.map((c) =>
+        c.id === id ? { ...c, schedule } : c
+      ),
+    }));
+
+    if (!_demoMode) {
+      fetch(`/api/campaigns/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          start_date: schedule.startDate,
+          end_date: schedule.endDate,
+          time_windows: schedule.timeWindows ?? null,
+        }),
+      }).catch((err) => console.error("Failed to persist schedule update:", err));
     }
   },
 

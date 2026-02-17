@@ -2,6 +2,7 @@
 
 import {
   CampaignType,
+  CampaignSchedule,
   FlowType,
   FormatContent,
   RobotType,
@@ -19,12 +20,23 @@ import { useStore } from "@/store";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Rocket, Check, AlertTriangle } from "lucide-react";
 
+const timeWindowDisplayLabels: Record<string, string> = {
+  all_day: "All Day",
+  morning: "Morning",
+  afternoon: "Afternoon",
+  evening: "Evening",
+  night: "Night",
+  lunch_rush: "Lunch Rush",
+  dinner_rush: "Dinner Rush",
+};
+
 interface CampaignReviewProps {
   robotType: RobotType;
   campaignType: CampaignType;
   flow: FlowType;
   formats: FormatContent[];
   budget: number;
+  schedule: CampaignSchedule;
   strategyConfig: Record<string, unknown>;
   creativeIds: string[];
   isDemoMode: boolean;
@@ -38,6 +50,7 @@ export function CampaignReview({
   flow,
   formats,
   budget,
+  schedule,
   strategyConfig,
   creativeIds,
   isDemoMode,
@@ -111,6 +124,20 @@ export function CampaignReview({
                 />
               );
             })}
+            <SummaryRow
+              label="Schedule"
+              value={`${new Date(schedule.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${new Date(schedule.endDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`}
+            />
+            <SummaryRow
+              label="Duration"
+              value={`${Math.round((new Date(schedule.endDate).getTime() - new Date(schedule.startDate).getTime()) / (1000 * 60 * 60 * 24))} days`}
+            />
+            {schedule.timeWindows && schedule.timeWindows.length > 0 && (
+              <SummaryRow
+                label="Time Windows"
+                value={schedule.timeWindows.map((tw) => timeWindowDisplayLabels[tw] || tw).join(", ")}
+              />
+            )}
             <SummaryRow
               label="Daily Budget"
               value={`$${budget.toLocaleString()}`}

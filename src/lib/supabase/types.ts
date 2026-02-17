@@ -7,7 +7,9 @@ import type {
   Campaign,
   CampaignType,
   CampaignStatus,
+  CampaignSchedule,
   FlowType,
+  TimeWindow,
 } from "@/types";
 
 // ---- Database interface for typed Supabase client ----
@@ -149,6 +151,9 @@ export interface CampaignRow {
   campaign_ready: boolean;
   status: string;
   deployed_version: number;
+  start_date: string | null;
+  end_date: string | null;
+  time_windows: string[] | null;
   created_at: string;
   updated_at: string;
 }
@@ -166,6 +171,9 @@ export interface CampaignInsert {
   campaign_ready?: boolean;
   status?: string;
   deployed_version?: number;
+  start_date?: string | null;
+  end_date?: string | null;
+  time_windows?: string[] | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -183,6 +191,9 @@ export interface CampaignUpdate {
   campaign_ready?: boolean;
   status?: string;
   deployed_version?: number;
+  start_date?: string | null;
+  end_date?: string | null;
+  time_windows?: string[] | null;
   updated_at?: string;
 }
 
@@ -308,6 +319,14 @@ export function campaignRowToApp(row: CampaignRow): Campaign {
     metrics: { asp: 0, dcv: 0, cpd: 0, rdr: 0 },
     createdAt: row.created_at,
     creativeIds: row.creative_ids ?? [],
+    schedule:
+      row.start_date && row.end_date
+        ? {
+            startDate: row.start_date,
+            endDate: row.end_date,
+            timeWindows: (row.time_windows as TimeWindow[] | null) ?? undefined,
+          }
+        : undefined,
   };
 }
 
@@ -326,5 +345,8 @@ export function campaignAppToRow(
     creative_ids: campaign.creativeIds ?? [],
     status: campaign.status,
     campaign_ready: campaign.status === "active",
+    start_date: campaign.schedule?.startDate ?? null,
+    end_date: campaign.schedule?.endDate ?? null,
+    time_windows: campaign.schedule?.timeWindows ?? null,
   };
 }

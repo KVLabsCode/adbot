@@ -1,5 +1,12 @@
 import { CampaignType, FlowType, FormatType, RobotType } from "@/types";
 
+// Campaign types that support time-of-day window selection
+export const timeWindowCampaignTypes: CampaignType[] = [
+  CampaignType.ROUTE_SPONSORSHIP,
+  CampaignType.VOICE_DISPLAY,
+  CampaignType.DECISION_BID,
+];
+
 export const campaignTypeToFlows: Record<CampaignType, FlowType[]> = {
   [CampaignType.DECISION_BID]: [FlowType.PRE_DECISION, FlowType.COMPARISON_STAGE],
   [CampaignType.PREFERENCE_SLOT]: [FlowType.PRE_DECISION],

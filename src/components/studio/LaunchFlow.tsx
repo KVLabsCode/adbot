@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import {
   CampaignType,
+  CampaignSchedule,
   FlowType,
   FormatContent,
   RobotType,
@@ -35,6 +36,7 @@ interface ConfigResult {
   formats: FormatContent[];
   strategyConfig: Record<string, unknown>;
   budget: number;
+  schedule: CampaignSchedule;
 }
 
 export function LaunchFlow({ onClose }: { onClose: () => void }) {
@@ -94,6 +96,7 @@ export function LaunchFlow({ onClose }: { onClose: () => void }) {
       store.addDraftFormat(format);
     }
     store.setDraftBudget(configResult.budget);
+    store.setDraftSchedule(configResult.schedule);
     store.setDraftStrategyConfig(configResult.strategyConfig);
     if (selectedCreativeIds.length > 0) {
       store.setDraftCreativeIds(selectedCreativeIds);
@@ -237,6 +240,7 @@ export function LaunchFlow({ onClose }: { onClose: () => void }) {
           flow={campaignTypeToFlows[selectedSubtype][0]}
           formats={configResult.formats}
           budget={configResult.budget}
+          schedule={configResult.schedule}
           strategyConfig={configResult.strategyConfig}
           creativeIds={selectedCreativeIds}
           isDemoMode={isDemoMode !== false}

@@ -40,6 +40,22 @@ export enum CampaignStatus {
   DRAFT = "draft",
 }
 
+export enum TimeWindow {
+  ALL_DAY = "all_day",
+  MORNING = "morning",
+  AFTERNOON = "afternoon",
+  EVENING = "evening",
+  NIGHT = "night",
+  LUNCH_RUSH = "lunch_rush",
+  DINNER_RUSH = "dinner_rush",
+}
+
+export interface CampaignSchedule {
+  startDate: string;
+  endDate: string;
+  timeWindows?: TimeWindow[];
+}
+
 export type ActionType =
   | "CREATE_CAMPAIGN"
   | "SET_FLOW"
@@ -137,6 +153,7 @@ export interface Campaign {
   };
   createdAt: string;
   creativeIds?: string[];
+  schedule?: CampaignSchedule;
 }
 
 export type OptimizationStrategy = "maximize_selection" | "maximize_value" | "balanced";
@@ -151,6 +168,7 @@ export interface CampaignDraft {
   optimizationStrategy?: OptimizationStrategy;
   strategyConfig?: Record<string, unknown>;
   creativeIds?: string[];
+  schedule?: CampaignSchedule;
 }
 
 export type LaunchFlowStep = "type-select" | "education" | "setup" | "review" | null;
@@ -257,12 +275,14 @@ export interface AdvertiserState {
   setDraftFlow: (flow: FlowType) => void;
   addDraftFormat: (format: FormatContent) => void;
   setDraftBudget: (budget: number) => void;
+  setDraftSchedule: (schedule: CampaignSchedule) => void;
   setDraftCreativeIds: (ids: string[]) => void;
   launchDraft: (metrics?: Campaign["metrics"]) => Campaign | null;
   selectCampaign: (id: string | null) => void;
   pauseCampaign: (id: string) => void;
   resumeCampaign: (id: string) => void;
   adjustBudget: (id: string, amount: number) => void;
+  updateCampaignSchedule: (id: string, schedule: CampaignSchedule) => void;
   pushAction: (type: ActionType, payload: Record<string, unknown>, campaignId?: string) => void;
   addCreative: (creative: Creative) => void;
   updateCreative: (id: string, updates: Partial<Creative>) => void;

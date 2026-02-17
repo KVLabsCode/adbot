@@ -1,11 +1,13 @@
 "use client";
 
-import { Campaign, CampaignStatus } from "@/types";
+import { useState } from "react";
+import { Campaign, CampaignStatus, CampaignSchedule, TimeWindow } from "@/types";
 import { useStore } from "@/store";
 import {
   campaignTypeLabels,
   campaignTypeEmojis,
   flowTypeLabels,
+  timeWindowCampaignTypes,
 } from "@/lib/campaignMappings";
 import { FormatPreview } from "./FormatPreview";
 import { ActivityLog } from "./ActivityLog";
@@ -15,8 +17,18 @@ import {
   Sheet,
   SheetContent,
 } from "@/components/ui/sheet";
-import { X, ArrowUpRight } from "lucide-react";
+import { X, ArrowUpRight, Pencil, Check as CheckIcon } from "lucide-react";
 import Link from "next/link";
+
+const timeWindowDisplayLabels: Record<string, string> = {
+  all_day: "All Day",
+  morning: "Morning",
+  afternoon: "Afternoon",
+  evening: "Evening",
+  night: "Night",
+  lunch_rush: "Lunch Rush",
+  dinner_rush: "Dinner Rush",
+};
 
 interface CampaignSheetProps {
   campaign: Campaign | null;
@@ -40,6 +52,10 @@ export function CampaignSheet({
   onResume,
 }: CampaignSheetProps) {
   const actionHistory = useStore((s) => s.actionHistory);
+  const updateCampaignSchedule = useStore((s) => s.updateCampaignSchedule);
+  const [editingSchedule, setEditingSchedule] = useState(false);
+  const [editStartDate, setEditStartDate] = useState("");
+  const [editEndDate, setEditEndDate] = useState("");
   if (!campaign) return null;
 
   const campaignEvents = actionHistory.filter(
@@ -95,6 +111,104 @@ export function CampaignSheet({
               </div>
             </div>
           </div>
+
+          {/* Schedule Section */}
+          {campaign.schedule && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                  Schedule
+                </h3>
+                {!editingSchedule ? (
+                  <button
+                    onClick={() => {
+                      setEditStartDate(campaign.schedule!.startDate.split("T")[0]);
+                      setEditEndDate(campaign.schedule!.endDate.split("T")[0]);
+                      setEditingSchedule(true);
+                    }}
+                    className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-gray-900 transition-colors"
+                  >
+                    <Pencil className="h-3 w-3" />
+                    Edit
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      updateCampaignSchedule(campaign.id, {
+                        startDate: new Date(editStartDate).toISOString(),
+                        endDate: new Date(editEndDate).toISOString(),
+                        timeWindows: campaign.schedule?.timeWindows,
+                      });
+                      setEditingSchedule(false);
+                    }}
+                    className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+                  >
+                    <CheckIcon className="h-3 w-3" />
+                    Save
+                  </button>
+                )}
+              </div>
+              {editingSchedule ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Start</label>
+                    <input
+                      type="date"
+                      value={editStartDate}
+                      onChange={(e) => setEditStartDate(e.target.value)}
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">End</label>
+                    <input
+                      type="date"
+                      value={editEndDate}
+                      min={editStartDate}
+                      onChange={(e) => setEditEndDate(e.target.value)}
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-xs text-gray-500">Date Range</span>
+                    <span className="text-sm font-medium">
+                      {new Date(campaign.schedule.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      {" - "}
+                      {new Date(campaign.schedule.endDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-xs text-gray-500">Remaining</span>
+                    <span className="text-sm font-medium">
+                      {(() => {
+                        const remaining = Math.max(
+                          0,
+                          Math.ceil(
+                            (new Date(campaign.schedule.endDate).getTime() - Date.now()) /
+                              (1000 * 60 * 60 * 24)
+                          )
+                        );
+                        return `${remaining} day${remaining !== 1 ? "s" : ""}`;
+                      })()}
+                    </span>
+                  </div>
+                  {campaign.schedule.timeWindows && campaign.schedule.timeWindows.length > 0 && (
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs text-gray-500">Time Windows</span>
+                      <span className="text-sm font-medium">
+                        {campaign.schedule.timeWindows
+                          .map((tw) => timeWindowDisplayLabels[tw] || tw)
+                          .join(", ")}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Formats Section */}
           <div className="mb-6">
