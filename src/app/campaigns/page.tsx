@@ -36,8 +36,8 @@ export default function CampaignsPage() {
             Launch your first robot decision campaign from the Studio to start
             influencing how robots choose your brand.
           </p>
-          <Button onClick={() => router.push("/studio")}>
-            Go to Studio
+          <Button onClick={() => router.push("/create")}>
+            Create Campaign
           </Button>
         </div>
       ) : (

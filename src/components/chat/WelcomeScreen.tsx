@@ -13,8 +13,8 @@ export function WelcomeScreen({ onAction }: WelcomeScreenProps) {
   const hasCampaigns = campaigns.length > 0;
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-4">
-      <div className="text-center mb-6">
+    <div className="flex flex-1 flex-col items-center justify-center px-4 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-kovio-blue/[0.03] to-transparent">
+      <div className="text-center mb-8">
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
           <Target className="h-6 w-6 text-primary" aria-hidden="true" />
         </div>

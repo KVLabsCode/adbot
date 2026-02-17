@@ -21,40 +21,38 @@ export async function GET() {
     return NextResponse.json({ status: "no_content" });
   }
 
-  // 2. Fetch creatives for this campaign
+  // 2. Fetch the most recently uploaded creative for this campaign
   const creativeResult = await supabase
     .from("creatives")
     .select("*")
-    .in("id", campaign.creative_ids);
+    .in("id", campaign.creative_ids)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
 
-  const creatives = (creativeResult.data ?? []) as CreativeRow[];
-
-  // 3. Build media list with signed URLs
-  const media = [];
-  for (const creativeId of campaign.creative_ids) {
-    const creative = creatives.find((c) => c.id === creativeId);
-    if (!creative || !creative.asset_path) continue;
-
-    try {
-      const mediaUrl = await getSignedUrl(creative.asset_path, 3600);
-      media.push({
-        media_type: creative.media_type ?? "image",
-        mime_type: creative.mime_type ?? "image/png",
-        media_url: mediaUrl,
-        duration_seconds: creative.duration_seconds ?? null,
-      });
-    } catch {
-      // Skip creatives with failed signed URLs
-    }
+  const creative = creativeResult.data as CreativeRow | null;
+  if (!creative || !creative.asset_path) {
+    return NextResponse.json({ status: "no_content" });
   }
 
-  if (media.length === 0) {
+  // 3. Build signed URL for the latest creative
+  let mediaUrl: string;
+  try {
+    mediaUrl = await getSignedUrl(creative.asset_path, 3600);
+  } catch {
     return NextResponse.json({ status: "no_content" });
   }
 
   return NextResponse.json({
     campaign_id: campaign.id,
     campaign_name: campaign.name,
-    media,
+    media: [
+      {
+        media_type: creative.media_type ?? "image",
+        mime_type: creative.mime_type ?? "image/png",
+        media_url: mediaUrl,
+        duration_seconds: creative.duration_seconds ?? null,
+      },
+    ],
   });
 }

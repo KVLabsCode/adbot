@@ -6,6 +6,15 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "25mb",
     },
   },
+  async redirects() {
+    return [
+      {
+        source: "/studio",
+        destination: "/chat",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -2,6 +2,6 @@
 
 import { ChatWindow } from "@/components/chat/ChatWindow";
 
-export default function StudioPage() {
+export default function ChatPage() {
   return <ChatWindow />;
 }

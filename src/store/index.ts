@@ -40,7 +40,7 @@ export function getStoreDemoMode(): boolean {
 
 function getInitialState() {
   return {
-    activeView: "studio",
+    activeView: "chat",
     campaigns: initialCampaigns as unknown as Campaign[],
     selectedCampaignId: null as string | null,
     conversation: [] as ChatMessage[],

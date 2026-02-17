@@ -37,10 +37,10 @@ export function RobotTypeSelector({ onSelect, onBack }: RobotTypeSelectorProps) 
         <button
           onClick={onBack}
           className="mb-4 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Back to Studio"
+          aria-label="Back"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Studio
+          Back
         </button>
 
         <h2 className="text-lg font-semibold mb-1">Choose a Robot Type</h2>

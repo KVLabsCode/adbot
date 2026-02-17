@@ -17,7 +17,7 @@ const actions: {
 }[] = [
   {
     id: "launch",
-    label: "Launch Campaign",
+    label: "Create Campaign",
     emoji: "\ud83d\ude80",
     icon: Rocket,
     description: "Build & deploy a new campaign",
@@ -53,7 +53,7 @@ export function AgenticActions({ onAction }: AgenticActionsProps) {
           <button
             key={a.id}
             onClick={() => onAction(a.id)}
-            className="flex flex-col items-center gap-1.5 rounded-lg border bg-card p-3 text-center transition-colors hover:bg-accent hover:border-primary/30 active:scale-[0.98]"
+            className="flex flex-col items-center gap-1.5 rounded-lg border bg-card p-3 text-center transition-all duration-200 hover:bg-accent hover:border-kovio-blue/30 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]"
             aria-label={a.label}
           >
             <span className="text-xl" role="img" aria-hidden="true">

@@ -5,7 +5,7 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const MODEL = "anthropic/claude-sonnet-4.5";
 
 function buildSystemPrompt(context: ChatRequestBody["context"]): string {
-  return `You are the BlitzMode AI assistant for an advertiser platform that manages robot-native decision campaigns. You help advertisers understand their campaign performance, create and manage campaigns, and provide insights about their advertising metrics.
+  return `You are the Kovio AdBot Network AI assistant for an advertiser platform that manages robot-native decision campaigns. You help advertisers understand their campaign performance, create and manage campaigns, and provide insights about their advertising metrics.
 
 ## Advertiser Context
 
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       Authorization: `Bearer ${OPENROUTER_API_KEY}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "https://blitzmode.app",
-      "X-Title": "BlitzMode Advertiser Platform",
+      "X-Title": "Kovio AdBot Network Advertiser Platform",
     },
     body: JSON.stringify({
       model: MODEL,

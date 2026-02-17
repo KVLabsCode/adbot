@@ -16,7 +16,7 @@ const tabs: { id: StudioTab; label: string }[] = [
   { id: "validation-log", label: "Validation Log" },
 ];
 
-export function CreativeStudio({ onClose }: { onClose: () => void }) {
+export function CreativeStudio({ onClose, standalone }: { onClose: () => void; standalone?: boolean }) {
   const [activeTab, setActiveTab] = useState<StudioTab>("my-creatives");
 
   return (
@@ -24,18 +24,20 @@ export function CreativeStudio({ onClose }: { onClose: () => void }) {
       {/* Header */}
       <div className="border-b px-4 py-3 flex items-center justify-between">
         <div>
-          <h2 className="text-sm font-semibold">Creative Studio</h2>
+          <h2 className="text-sm font-semibold">{standalone ? "Creatives" : "Creative Studio"}</h2>
           <p className="text-xs text-muted-foreground">
             Upload, create & manage ad creatives
           </p>
         </div>
-        <button
-          onClick={onClose}
-          className="rounded-lg p-1.5 hover:bg-muted transition-colors"
-          aria-label="Close creative studio"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        {!standalone && (
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1.5 hover:bg-muted transition-colors"
+            aria-label="Close creative studio"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Tab Bar */}
