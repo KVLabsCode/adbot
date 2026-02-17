@@ -48,6 +48,7 @@ export function LaunchFlow({ onClose }: { onClose: () => void }) {
   const [selectedSubtype, setSelectedSubtype] = useState<CampaignType | null>(null);
   const [configResult, setConfigResult] = useState<ConfigResult | null>(null);
   const [selectedCreativeIds, setSelectedCreativeIds] = useState<string[]>([]);
+  const [campaignName, setCampaignName] = useState("");
 
   const eligibleCreatives = creatives.filter(
     (c) => c.status === CreativeStatus.VALIDATED || c.status === CreativeStatus.LIVE
@@ -82,7 +83,7 @@ export function LaunchFlow({ onClose }: { onClose: () => void }) {
     if (!selectedRobotType || !selectedSubtype || !configResult) return;
 
     const store = useStore.getState();
-    const name = `${robotTypeLabels[selectedRobotType]} — ${campaignTypeLabels[selectedSubtype]}`;
+    const name = campaignName.trim() || `${robotTypeLabels[selectedRobotType]} — ${campaignTypeLabels[selectedSubtype]}`;
     const flows = campaignTypeToFlows[selectedSubtype];
     const flow: FlowType = flows[0];
 
@@ -146,6 +147,17 @@ export function LaunchFlow({ onClose }: { onClose: () => void }) {
               <ArrowLeft className="h-3.5 w-3.5" />
               Back to Strategy
             </button>
+
+            <div className="mb-5">
+              <label className="block text-sm font-medium mb-1.5">Campaign Name</label>
+              <input
+                type="text"
+                value={campaignName}
+                onChange={(e) => setCampaignName(e.target.value)}
+                placeholder={selectedRobotType && selectedSubtype ? `${robotTypeLabels[selectedRobotType]} — ${campaignTypeLabels[selectedSubtype]}` : "Enter campaign name"}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
 
             <h2 className="text-lg font-semibold mb-1">Select Creatives</h2>
             <p className="text-sm text-muted-foreground mb-5">

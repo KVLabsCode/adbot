@@ -50,6 +50,7 @@ export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
   const [mediaType, setMediaType] = useState("");
   const [mimeType, setMimeType] = useState("");
   const [fileName, setFileName] = useState("");
+  const [creativeName, setCreativeName] = useState("");
 
   const isLiveMode = isDemoMode === false;
 
@@ -147,7 +148,7 @@ export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
 
     const creative = {
       id: `cr-${Date.now()}`,
-      name: `${formatTypeLabels[selectedFormat]} Creative`,
+      name: creativeName.trim() || `${formatTypeLabels[selectedFormat]} Creative`,
       formatType: selectedFormat,
       robotTypes: selectedRobots,
       status: CreativeStatus.DRAFT,
@@ -343,6 +344,16 @@ export function CreateNewFlow({ onComplete }: CreateNewFlowProps) {
             <h2 className="text-lg font-semibold mb-4">
               Build {formatTypeLabels[selectedFormat]}
             </h2>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1.5">Creative Name</label>
+              <input
+                type="text"
+                value={creativeName}
+                onChange={(e) => setCreativeName(e.target.value)}
+                placeholder={`${formatTypeLabels[selectedFormat]} Creative`}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
             {renderBuilder()}
             <Button
               className="w-full mt-4"
