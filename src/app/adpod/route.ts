@@ -43,6 +43,27 @@ body {
   50% { opacity: 1; transform: scale(1.05); }
 }
 
+/* Force landscape on portrait displays (e.g. Raspberry Pi LED panel) */
+@media (orientation: portrait) {
+  body {
+    transform: rotate(90deg);
+    transform-origin: top left;
+    width: 100vh;
+    height: 100vw;
+    position: absolute;
+    top: 0;
+    left: 100vw;
+  }
+  .media-element {
+    width: 100vh;
+    height: 100vw;
+  }
+  .idle {
+    width: 100vh;
+    height: 100vw;
+  }
+}
+
 /* Fade transition */
 #screen {
   transition: opacity 0.4s ease;
