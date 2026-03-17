@@ -2,6 +2,7 @@
 
 import { useStore } from "@/store";
 import { ReportingCharts } from "@/components/reporting/ReportingCharts";
+import { ImpressionMetrics } from "@/components/reporting/ImpressionMetrics";
 
 export default function ReportingPage() {
   const reportingData = useStore((s) => s.reportingData);
@@ -14,7 +15,10 @@ export default function ReportingPage() {
           See how your campaigns influence robot decisions across the network
         </p>
       </div>
-      <ReportingCharts data={reportingData} />
+      <div className="space-y-10">
+        <ImpressionMetrics />
+        <ReportingCharts data={reportingData} />
+      </div>
     </div>
   );
 }

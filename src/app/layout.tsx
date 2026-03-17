@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import { AppShell } from "@/components/AppShell";
+import { LayoutRouter } from "@/components/LayoutRouter";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DemoModeInitializer } from "@/lib/supabase/DemoModeInitializer";
 
@@ -39,7 +39,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <DemoModeInitializer />
           <TooltipProvider>
-            <AppShell>{children}</AppShell>
+            <LayoutRouter>{children}</LayoutRouter>
           </TooltipProvider>
         </ThemeProvider>
       </body>

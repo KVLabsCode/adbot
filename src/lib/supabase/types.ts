@@ -79,6 +79,11 @@ export interface Database {
         Insert: ConfigFlagInsert;
         Update: ConfigFlagUpdate;
       };
+      impressions: {
+        Row: ImpressionRow;
+        Insert: ImpressionInsert;
+        Update: ImpressionUpdate;
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -268,6 +273,33 @@ export interface ConfigFlagUpdate {
   key?: string;
   value?: Record<string, unknown>;
   updated_at?: string;
+}
+
+export interface ImpressionRow {
+  id: string;
+  campaign_id: string;
+  creative_id: string;
+  device_id: string;
+  revenue: number;
+  created_at: string;
+}
+
+export interface ImpressionInsert {
+  id?: string;
+  campaign_id: string;
+  creative_id: string;
+  device_id: string;
+  revenue?: number;
+  created_at?: string;
+}
+
+export interface ImpressionUpdate {
+  id?: string;
+  campaign_id?: string;
+  creative_id?: string;
+  device_id?: string;
+  revenue?: number;
+  created_at?: string;
 }
 
 // ---- Converters ----

@@ -48,9 +48,11 @@ export async function GET() {
         playlist.push({
           campaign_id: campaign.id,
           campaign_name: campaign.name,
+          creative_id: creativeId,
           media_type: creative.media_type ?? "image",
           mime_type: creative.mime_type ?? "image/png",
           media_url: mediaUrl,
+          impression_url: "/api/track/impression",
           duration_seconds: creative.duration_seconds ?? null,
         });
       } catch {

@@ -23,4 +23,28 @@ export const metricTooltips: Record<string, { title: string; description: string
       "The percentage of robot encounters where your sponsored option was selected. An RDR of 0.73 means 73% of robots chose your brand when presented.",
     plainLanguage: "How often robots choose your brand",
   },
+  impressions: {
+    title: "Total Impressions",
+    description:
+      "The total number of times your ads have been displayed on AdPod devices. Each impression is server-recorded when a device confirms display.",
+    plainLanguage: "How many times your ads were shown",
+  },
+  revenue: {
+    title: "Total Revenue",
+    description:
+      "Total revenue generated from ad impressions. Calculated as budget_cents / 1000 per impression for each campaign.",
+    plainLanguage: "Total earnings from ad displays",
+  },
+  ecpm: {
+    title: "Effective CPM (eCPM)",
+    description:
+      "Revenue per 1,000 impressions. Calculated as (total revenue / total impressions) * 1000. Higher eCPM indicates more valuable ad placements.",
+    plainLanguage: "How much you earn per 1,000 ad views",
+  },
+  devices_active: {
+    title: "Active Devices",
+    description:
+      "The number of unique AdPod devices that have recorded at least one impression. Indicates the reach of your ad network.",
+    plainLanguage: "How many robots are showing your ads",
+  },
 };
