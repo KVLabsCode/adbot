@@ -194,6 +194,15 @@ export const useStore = create<AdvertiserState>((set, get) => ({
       campaignDraft: null,
     }));
 
+    // Broadcast to Kovio demo page (cross-tab via BroadcastChannel)
+    if (typeof window !== 'undefined') {
+      try {
+        const ch = new BroadcastChannel('kovio_demo');
+        ch.postMessage({ type: 'CAMPAIGN_LAUNCHED', campaign });
+        ch.close();
+      } catch (_) {}
+    }
+
     return campaign;
   },
 

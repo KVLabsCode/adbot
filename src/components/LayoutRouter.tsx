@@ -22,6 +22,11 @@ export function LayoutRouter({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
+  // Demo — standalone investor page, no shell
+  if (pathname.startsWith("/demo")) {
+    return <>{children}</>;
+  }
+
   // OEM Fleet portal
   if (pathname.startsWith("/fleet")) {
     return <FleetShell>{children}</FleetShell>;
