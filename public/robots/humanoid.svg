@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" fill="none">
+  <rect width="400" height="300" fill="#F4F3FE"/>
+  <!-- Head -->
+  <circle cx="200" cy="75" r="35" fill="#6366F1" opacity="0.15" stroke="#6366F1" stroke-width="2"/>
+  <circle cx="188" cy="70" r="5" fill="#6366F1" opacity="0.6"/>
+  <circle cx="212" cy="70" r="5" fill="#6366F1" opacity="0.6"/>
+  <path d="M190 85 Q200 92 210 85" stroke="#6366F1" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+  <!-- Antenna -->
+  <line x1="200" y1="40" x2="200" y2="25" stroke="#6366F1" stroke-width="2" opacity="0.4"/>
+  <circle cx="200" cy="22" r="4" fill="#6366F1" opacity="0.4"/>
+  <!-- Neck -->
+  <rect x="192" y="110" width="16" height="12" rx="3" fill="#6366F1" opacity="0.1" stroke="#6366F1" stroke-width="1.5"/>
+  <!-- Torso -->
+  <rect x="155" y="122" width="90" height="120" rx="12" fill="#6366F1" opacity="0.1" stroke="#6366F1" stroke-width="2"/>
+  <!-- Chest display -->
+  <rect x="170" y="135" width="60" height="85" rx="6" fill="#6366F1" opacity="0.08" stroke="#6366F1" stroke-width="1.5" stroke-dasharray="4 2"/>
+  <text x="200" y="175" text-anchor="middle" fill="#6366F1" font-size="10" font-family="system-ui" opacity="0.5">9:16</text>
+  <text x="200" y="190" text-anchor="middle" fill="#6366F1" font-size="8" font-family="system-ui" opacity="0.4">DISPLAY</text>
+  <!-- Arms -->
+  <rect x="130" y="130" width="20" height="70" rx="10" fill="#6366F1" opacity="0.08" stroke="#6366F1" stroke-width="1.5"/>
+  <rect x="250" y="130" width="20" height="70" rx="10" fill="#6366F1" opacity="0.08" stroke="#6366F1" stroke-width="1.5"/>
+  <!-- Legs -->
+  <rect x="170" y="245" width="22" height="40" rx="8" fill="#6366F1" opacity="0.08" stroke="#6366F1" stroke-width="1.5"/>
+  <rect x="208" y="245" width="22" height="40" rx="8" fill="#6366F1" opacity="0.08" stroke="#6366F1" stroke-width="1.5"/>
+  <!-- Label -->
+  <text x="200" y="298" text-anchor="middle" fill="#6366F1" font-size="11" font-family="system-ui" font-weight="600" opacity="0.6">UNITREE G1 / H1</text>
+</svg>

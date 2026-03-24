@@ -87,7 +87,7 @@ export async function GET(
       guardrails: c.guardrails,
       creative_ids: c.creative_ids,
     })),
-    creatives: creativesWithUrls.map((c) => ({
+    creatives: creativesWithUrls.map((c: Record<string, unknown>) => ({
       id: c.id,
       format_type: c.format_type,
       metadata: c.metadata,

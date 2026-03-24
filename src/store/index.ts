@@ -3,30 +3,32 @@ import {
   AdvertiserState,
   ActionEvent,
   ActionType,
+  BiddingModel,
   Campaign,
-  CampaignType,
+  CampaignDraft,
   CampaignSchedule,
   CampaignStatus,
-  FlowType,
-  FormatContent,
-  ChatMessage,
+  ContentPolicy,
   Creative,
-  RobotType,
+  FleetAdvertiser,
+  FleetConfig,
+  InviteLink,
+  RobotCategory,
   ValidationLogEntry,
+  WizardStep,
+  ApprovalQueueItem,
 } from "@/types";
-import initialCampaigns from "@/fixtures/campaigns.json";
-import initialReporting from "@/fixtures/reporting.json";
-import initialBilling from "@/fixtures/billing.json";
-import initialCreativesData from "@/fixtures/creatives.json";
-import { resetMsgCounter } from "@/lib/idCounter";
-import { creativeAppToRow, campaignAppToRow } from "@/lib/supabase/types";
-
-const initialCreatives = initialCreativesData.creativesList as unknown as Creative[];
-
-type ReportingKpis = AdvertiserState["reportingData"]["kpis"];
-type ReportingAspTrend = AdvertiserState["reportingData"]["aspTrend"];
-type ReportingFlowBreakdown = AdvertiserState["reportingData"]["flowBreakdown"];
-type ReportingFormatBreakdown = AdvertiserState["reportingData"]["formatBreakdown"];
+import {
+  advertiserCampaigns,
+  advertiserCreatives,
+  advertiserReporting,
+  advertiserBilling,
+} from "@/fixtures/advertiser-demo";
+import {
+  fleetConfig as defaultFleetConfig,
+  fleetAdvertisers as defaultFleetAdvertisers,
+  approvalQueue as defaultApprovalQueue,
+} from "@/fixtures/fleet-demo";
 
 // Module-level demo mode flag
 let _demoMode = true;
@@ -39,100 +41,81 @@ export function getStoreDemoMode(): boolean {
   return _demoMode;
 }
 
+let campaignCounter = 20;
+
 function getInitialState() {
   return {
-    activeView: "chat",
-    campaigns: initialCampaigns as unknown as Campaign[],
+    activePortal: "advertiser" as const,
+
+    // Campaigns
+    campaigns: advertiserCampaigns as Campaign[],
     selectedCampaignId: null as string | null,
-    conversation: [] as ChatMessage[],
-    campaignDraft: null as AdvertiserState["campaignDraft"],
-    reportingData: {
-      kpis: initialReporting.kpis as ReportingKpis,
-      aspTrend: initialReporting.aspTrend as ReportingAspTrend,
-      flowBreakdown: initialReporting.flowBreakdown as ReportingFlowBreakdown,
-      formatBreakdown: initialReporting.formatBreakdown as ReportingFormatBreakdown,
-    },
-    billingData: initialBilling,
-    actionHistory: [] as ActionEvent[],
-    actionCounter: 0,
-    hasSeenOnboarding: false,
-    launchFlowStep: null as AdvertiserState["launchFlowStep"],
-    creatives: initialCreatives,
+    campaignDraft: null as CampaignDraft | null,
+
+    // Creatives
+    creatives: advertiserCreatives as Creative[],
     creativeDraft: null as Partial<Creative> | null,
     validationLog: [] as ValidationLogEntry[],
+
+    // Reporting
+    reportingData: advertiserReporting,
+    billingData: advertiserBilling,
+
+    // OEM Fleet
+    fleetConfig: defaultFleetConfig as FleetConfig,
+    approvalQueue: defaultApprovalQueue as ApprovalQueueItem[],
+    fleetAdvertisers: defaultFleetAdvertisers as FleetAdvertiser[],
+    inviteLinks: [] as InviteLink[],
+
+    // Actions
+    actionHistory: [] as ActionEvent[],
+    actionCounter: 0,
   };
 }
-
-let campaignCounter = 10;
 
 export const useStore = create<AdvertiserState>((set, get) => ({
   ...getInitialState(),
 
-  setView: (view) => set({ activeView: view }),
+  // ─── Wizard ────────────────────────────────────────────────────────────
 
-  dismissOnboarding: () => set({ hasSeenOnboarding: true }),
-
-  setLaunchFlowStep: (step) => set({ launchFlowStep: step }),
-
-  addMessage: (message) =>
-    set((state) => ({ conversation: [...state.conversation, message] })),
-
-  updateMessageContent: (id, content) =>
-    set((state) => ({
-      conversation: state.conversation.map((m) =>
-        m.id === id ? { ...m, content } : m
-      ),
-    })),
-
-  finalizeMessage: (id) =>
-    set((state) => ({
-      conversation: state.conversation.map((m) =>
-        m.id === id ? { ...m, isStreaming: false } : m
-      ),
-    })),
-
-  createDraft: (type: CampaignType, name: string, robotType?: RobotType) =>
-    set({ campaignDraft: { type, name, formats: [], robotType } }),
-
-  setDraftRobotType: (robotType: RobotType) =>
-    set((state) => {
-      if (!state.campaignDraft) return {};
-      return { campaignDraft: { ...state.campaignDraft, robotType } };
+  initDraft: () =>
+    set({
+      campaignDraft: {
+        step: 1,
+        creativeIds: [],
+      },
     }),
 
-  setDraftStrategyConfig: (config: Record<string, unknown>) =>
+  setWizardStep: (step: WizardStep) =>
     set((state) => {
       if (!state.campaignDraft) return {};
-      return { campaignDraft: { ...state.campaignDraft, strategyConfig: config } };
+      return { campaignDraft: { ...state.campaignDraft, step } };
     }),
 
-  setDraftFlow: (flow: FlowType) =>
-    set((state) => {
-      if (!state.campaignDraft) return {};
-      return { campaignDraft: { ...state.campaignDraft, flow } };
-    }),
-
-  addDraftFormat: (format: FormatContent) =>
+  setDraftRobotCategory: (cat: RobotCategory) =>
     set((state) => {
       if (!state.campaignDraft) return {};
       return {
         campaignDraft: {
           ...state.campaignDraft,
-          formats: [...state.campaignDraft.formats, format],
+          robotCategory: cat,
+          // Reset downstream selections
+          oemId: undefined,
+          placementMomentId: undefined,
         },
       };
     }),
 
-  setDraftBudget: (budget: number) =>
+  setDraftOem: (oemId: string) =>
     set((state) => {
       if (!state.campaignDraft) return {};
-      return { campaignDraft: { ...state.campaignDraft, budget } };
+      return { campaignDraft: { ...state.campaignDraft, oemId } };
     }),
 
-  setDraftSchedule: (schedule: CampaignSchedule) =>
+  setDraftMoment: (momentId: string) =>
     set((state) => {
       if (!state.campaignDraft) return {};
-      return { campaignDraft: { ...state.campaignDraft, schedule } };
+      return { campaignDraft: { ...state.campaignDraft, placementMomentId: momentId } };
     }),
 
   setDraftCreativeIds: (ids: string[]) =>
@@ -141,25 +124,69 @@ export const useStore = create<AdvertiserState>((set, get) => ({
       return { campaignDraft: { ...state.campaignDraft, creativeIds: ids } };
     }),
 
-  launchDraft: (metrics?: Campaign["metrics"]) => {
+  setDraftBudget: (budget: number, type: "daily" | "total") =>
+    set((state) => {
+      if (!state.campaignDraft) return {};
+      return { campaignDraft: { ...state.campaignDraft, budget, budgetType: type } };
+    }),
+
+  setDraftBiddingModel: (model: BiddingModel) =>
+    set((state) => {
+      if (!state.campaignDraft) return {};
+      return { campaignDraft: { ...state.campaignDraft, biddingModel: model } };
+    }),
+
+  setDraftSchedule: (schedule: CampaignSchedule) =>
+    set((state) => {
+      if (!state.campaignDraft) return {};
+      return { campaignDraft: { ...state.campaignDraft, schedule } };
+    }),
+
+  setDraftName: (name: string) =>
+    set((state) => {
+      if (!state.campaignDraft) return {};
+      return { campaignDraft: { ...state.campaignDraft, name } };
+    }),
+
+  submitDraft: () => {
     const state = get();
     const draft = state.campaignDraft;
-    if (!draft || !draft.type || !draft.flow || !draft.budget || !draft.name)
+    if (
+      !draft ||
+      !draft.robotCategory ||
+      !draft.oemId ||
+      !draft.placementMomentId ||
+      !draft.budget ||
+      !draft.name
+    )
       return null;
 
     campaignCounter += 1;
     const campaign: Campaign = {
       id: `camp-${campaignCounter}`,
       name: draft.name,
-      type: draft.type,
-      status: CampaignStatus.ACTIVE,
-      flow: draft.flow,
-      formats: draft.formats,
+      robotCategory: draft.robotCategory,
+      oemId: draft.oemId,
+      placementMomentId: draft.placementMomentId,
+      status: CampaignStatus.PENDING_APPROVAL,
+      biddingModel: draft.biddingModel ?? BiddingModel.CPM,
       budget: draft.budget,
-      metrics: metrics ?? { asp: 0, dcv: 0, cpd: 0, rdr: 0 },
-      createdAt: new Date().toISOString(),
-      creativeIds: draft.creativeIds ?? [],
+      budgetType: draft.budgetType ?? "total",
       schedule: draft.schedule,
+      creativeIds: draft.creativeIds,
+      metrics: {
+        impressions: 0,
+        engagements: 0,
+        spend: 0,
+        cpm: 0,
+        cpe: 0,
+        engagementRate: 0,
+        verbalCompletions: 0,
+        qrScanRate: 0,
+        dwellTimeAvg: 0,
+        rdr: 0,
+      },
+      createdAt: new Date().toISOString(),
     };
 
     set((state) => ({
@@ -167,101 +194,124 @@ export const useStore = create<AdvertiserState>((set, get) => ({
       campaignDraft: null,
     }));
 
-    // Write-through via API route
-    if (!_demoMode) {
-      const row = campaignAppToRow(campaign, undefined, draft.robotType);
-      fetch("/api/campaigns", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(row),
-      })
-        .then((res) => res.json())
-        .then((inserted) => {
-          if (inserted.error) throw new Error(inserted.error);
-          set((state) => ({
-            campaigns: state.campaigns.map((c) =>
-              c.id === campaign.id ? { ...c, id: inserted.id } : c
-            ),
-          }));
-        })
-        .catch((err) => console.error("Failed to persist campaign:", err));
-    }
-
     return campaign;
   },
 
+  // ─── Campaigns ─────────────────────────────────────────────────────────
+
   selectCampaign: (id) => set({ selectedCampaignId: id }),
 
-  pauseCampaign: (id) => {
+  pauseCampaign: (id) =>
     set((state) => ({
       campaigns: state.campaigns.map((c) =>
         c.id === id ? { ...c, status: CampaignStatus.PAUSED } : c
       ),
-    }));
+    })),
 
-    if (!_demoMode) {
-      fetch(`/api/campaigns/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "paused", campaign_ready: false }),
-      }).catch((err) => console.error("Failed to persist pause:", err));
-    }
-  },
-
-  resumeCampaign: (id) => {
+  resumeCampaign: (id) =>
     set((state) => ({
       campaigns: state.campaigns.map((c) =>
         c.id === id ? { ...c, status: CampaignStatus.ACTIVE } : c
       ),
-    }));
+    })),
 
-    if (!_demoMode) {
-      fetch(`/api/campaigns/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "active", campaign_ready: true }),
-      }).catch((err) => console.error("Failed to persist resume:", err));
-    }
+  duplicateCampaign: (id) => {
+    const state = get();
+    const source = state.campaigns.find((c) => c.id === id);
+    if (!source) return;
+
+    campaignCounter += 1;
+    const dup: Campaign = {
+      ...source,
+      id: `camp-${campaignCounter}`,
+      name: `${source.name} (Copy)`,
+      status: CampaignStatus.DRAFT,
+      createdAt: new Date().toISOString(),
+      metrics: {
+        impressions: 0,
+        engagements: 0,
+        spend: 0,
+        cpm: 0,
+        cpe: 0,
+        engagementRate: 0,
+        verbalCompletions: 0,
+        qrScanRate: 0,
+        dwellTimeAvg: 0,
+        rdr: 0,
+      },
+    };
+    set((state) => ({ campaigns: [...state.campaigns, dup] }));
   },
 
-  adjustBudget: (id, amount) => {
-    const campaign = get().campaigns.find((c) => c.id === id);
+  // ─── Creatives ─────────────────────────────────────────────────────────
+
+  addCreative: (creative: Creative) =>
+    set((state) => ({ creatives: [...state.creatives, creative] })),
+
+  updateCreative: (id: string, updates: Partial<Creative>) =>
     set((state) => ({
-      campaigns: state.campaigns.map((c) =>
-        c.id === id ? { ...c, budget: c.budget + amount } : c
+      creatives: state.creatives.map((c) =>
+        c.id === id ? { ...c, ...updates } : c
       ),
-    }));
+    })),
 
-    if (!_demoMode && campaign) {
-      fetch(`/api/campaigns/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          budget_cents: Math.round((campaign.budget + amount) * 100),
-        }),
-      }).catch((err) => console.error("Failed to persist budget adjustment:", err));
-    }
-  },
-
-  updateCampaignSchedule: (id: string, schedule: CampaignSchedule) => {
+  deleteCreative: (id: string) =>
     set((state) => ({
-      campaigns: state.campaigns.map((c) =>
-        c.id === id ? { ...c, schedule } : c
-      ),
-    }));
+      creatives: state.creatives.filter((c) => c.id !== id),
+    })),
 
-    if (!_demoMode) {
-      fetch(`/api/campaigns/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          start_date: schedule.startDate,
-          end_date: schedule.endDate,
-          time_windows: schedule.timeWindows ?? null,
-        }),
-      }).catch((err) => console.error("Failed to persist schedule update:", err));
-    }
+  setCreativeDraft: (draft: Partial<Creative> | null) => set({ creativeDraft: draft }),
+
+  addValidationLog: (entry: ValidationLogEntry) =>
+    set((state) => ({
+      validationLog: [...state.validationLog, entry],
+    })),
+
+  // ─── OEM Fleet ─────────────────────────────────────────────────────────
+
+  updateFleetConfig: (config: Partial<FleetConfig>) =>
+    set((state) => ({
+      fleetConfig: { ...state.fleetConfig, ...config },
+    })),
+
+  approveCampaign: (campaignId: string) =>
+    set((state) => ({
+      approvalQueue: state.approvalQueue.filter((q) => q.campaign.id !== campaignId),
+      campaigns: state.campaigns.map((c) =>
+        c.id === campaignId ? { ...c, status: CampaignStatus.ACTIVE } : c
+      ),
+    })),
+
+  rejectCampaign: (campaignId: string, reason: string) =>
+    set((state) => ({
+      approvalQueue: state.approvalQueue.filter((q) => q.campaign.id !== campaignId),
+      campaigns: state.campaigns.map((c) =>
+        c.id === campaignId
+          ? { ...c, status: CampaignStatus.REJECTED, rejectionReason: reason }
+          : c
+      ),
+    })),
+
+  generateInviteLink: () => {
+    const id = `inv-${Date.now()}`;
+    const link: InviteLink = {
+      id,
+      url: `${typeof window !== "undefined" ? window.location.origin : ""}/advertise?invite=${id}`,
+      oemId: "fleet-001",
+      createdAt: new Date().toISOString(),
+    };
+    set((state) => ({ inviteLinks: [...state.inviteLinks, link] }));
+    return link;
   },
+
+  revokeAdvertiser: (advertiserId: string) =>
+    set((state) => ({
+      fleetAdvertisers: state.fleetAdvertisers.map((a) =>
+        a.id === advertiserId ? { ...a, status: "revoked" as const } : a
+      ),
+    })),
+
+  // ─── Actions ───────────────────────────────────────────────────────────
 
   pushAction: (type: ActionType, payload: Record<string, unknown>, campaignId?: string) =>
     set((state) => {
@@ -279,96 +329,10 @@ export const useStore = create<AdvertiserState>((set, get) => ({
       };
     }),
 
-  addCreative: (creative: Creative) => {
-    set((state) => ({ creatives: [...state.creatives, creative] }));
-
-    if (!_demoMode) {
-      const row = creativeAppToRow(creative);
-      fetch("/api/creatives", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(row),
-      })
-        .then((res) => res.json())
-        .then((inserted) => {
-          if (inserted.error) throw new Error(inserted.error);
-          // Update local ID with the real UUID
-          set((state) => ({
-            creatives: state.creatives.map((c) =>
-              c.id === creative.id ? { ...c, id: inserted.id } : c
-            ),
-          }));
-        })
-        .catch((err) => {
-          console.error("Failed to persist creative:", err);
-          // Rollback
-          set((state) => ({
-            creatives: state.creatives.filter((c) => c.id !== creative.id),
-          }));
-        });
-    }
-  },
-
-  updateCreative: (id: string, updates: Partial<Creative>) => {
-    const prev = get().creatives.find((c) => c.id === id);
-    set((state) => ({
-      creatives: state.creatives.map((c) =>
-        c.id === id ? { ...c, ...updates } : c
-      ),
-    }));
-
-    if (!_demoMode) {
-      const dbUpdates: Record<string, unknown> = {};
-      if (updates.name !== undefined) dbUpdates.name = updates.name;
-      if (updates.formatType !== undefined) dbUpdates.format_type = updates.formatType;
-      if (updates.content !== undefined) dbUpdates.metadata = updates.content;
-      if (updates.robotTypes !== undefined) dbUpdates.robot_compatibility = updates.robotTypes;
-      if (updates.status !== undefined) dbUpdates.status = updates.status;
-
-      fetch(`/api/creatives/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dbUpdates),
-      }).catch((err) => {
-        console.error("Failed to persist creative update:", err);
-        if (prev) {
-          set((state) => ({
-            creatives: state.creatives.map((c) =>
-              c.id === id ? prev : c
-            ),
-          }));
-        }
-      });
-    }
-  },
-
-  deleteCreative: (id: string) => {
-    const prev = get().creatives.find((c) => c.id === id);
-    set((state) => ({
-      creatives: state.creatives.filter((c) => c.id !== id),
-    }));
-
-    if (!_demoMode) {
-      fetch(`/api/creatives/${id}`, { method: "DELETE" }).catch((err) => {
-        console.error("Failed to delete creative from DB:", err);
-        if (prev) {
-          set((state) => ({ creatives: [...state.creatives, prev] }));
-        }
-      });
-    }
-  },
-
-  setCreativeDraft: (draft: Partial<Creative> | null) =>
-    set({ creativeDraft: draft }),
-
-  addValidationLog: (entry: ValidationLogEntry) =>
-    set((state) => ({
-      validationLog: [...state.validationLog, entry],
-    })),
+  // ─── Reset ─────────────────────────────────────────────────────────────
 
   resetDemo: () => {
-    campaignCounter = 10;
-    resetMsgCounter();
+    campaignCounter = 20;
     set(getInitialState());
   },
 }));

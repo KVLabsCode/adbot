@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { LayoutRouter } from "@/components/LayoutRouter";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { DemoModeInitializer } from "@/lib/supabase/DemoModeInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,14 +15,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Kovio Advertiser Platform",
-  description: "Chat-first advertiser platform for robot-native decision campaigns",
+  title: "Kovio — Robot Fleet Advertising",
+  description: "Two-sided advertising marketplace for robot fleets",
 };
 
 export default function RootLayout({
@@ -34,10 +28,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <DemoModeInitializer />
           <TooltipProvider>
             <LayoutRouter>{children}</LayoutRouter>
           </TooltipProvider>

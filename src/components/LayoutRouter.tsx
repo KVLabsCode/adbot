@@ -1,20 +1,32 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { AppShell } from "./AppShell";
-import { OemShell } from "./oem/OemShell";
+import { AdvertiserShell } from "./advertiser/AdvertiserShell";
+import { FleetShell } from "./fleet/FleetShell";
 
 export function LayoutRouter({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Public advertiser dashboard — no shell, standalone page
+  // Root landing page — no shell
+  if (pathname === "/") {
+    return <>{children}</>;
+  }
+
+  // Public advertiser dashboard — no shell
   if (pathname.startsWith("/a/")) {
     return <>{children}</>;
   }
 
-  if (pathname.startsWith("/oem")) {
-    return <OemShell>{children}</OemShell>;
+  // AdPod — no shell (robot hardware renderer)
+  if (pathname.startsWith("/adpod")) {
+    return <>{children}</>;
   }
 
-  return <AppShell>{children}</AppShell>;
+  // OEM Fleet portal
+  if (pathname.startsWith("/fleet")) {
+    return <FleetShell>{children}</FleetShell>;
+  }
+
+  // Everything else is advertiser portal
+  return <AdvertiserShell>{children}</AdvertiserShell>;
 }
